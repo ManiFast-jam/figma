@@ -9,6 +9,7 @@ import { Label } from '../ui/label';
 import { toast } from 'sonner';
 import { canEditWiki, getUserLevelName } from '../../utils/userLevel';
 import { CreateWikiModal } from '../wiki/CreateWikiModal';
+import { WikiHistoryModal } from '../wiki/WikiHistoryModal';
 import { MOCK_COMMENTS } from '../../data/mockComments';
 
 interface WikiEntry {
@@ -37,6 +38,21 @@ interface WikiDetailScreenProps {
   activeTab?: string;
   onTabChange?: (tab: string) => void;
   onGameCenterClick?: () => void;
+  onEntryUpdate?: (updatedEntry: WikiEntry) => void;
+  wikiHistory?: Array<{
+    version: number;
+    editedBy: string;
+    editedAt: string;
+    changes: string;
+    isCurrent?: boolean;
+  }>;
+  onHistoryUpdate?: (entryId: string, history: Array<{
+    version: number;
+    editedBy: string;
+    editedAt: string;
+    changes: string;
+    isCurrent?: boolean;
+  }>) => void;
 }
 
 // Category Badge Colors (5 Pillars)
@@ -459,16 +475,40 @@ export const WikiDetailScreen: React.FC<WikiDetailScreenProps> = ({
   onBack, 
   activeTab = 'home',
   onTabChange,
-  onGameCenterClick 
+  onGameCenterClick,
+  onEntryUpdate,
+  wikiHistory,
+  onHistoryUpdate,
 }) => {
   const { isDarkMode } = useTheme();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isCreateWikiModalOpen, setIsCreateWikiModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [replyText, setReplyText] = useState('');
+  
+  // Local history state (if not provided via props)
+  const [localHistory, setLocalHistory] = useState<Array<{
+    version: number;
+    editedBy: string;
+    editedAt: string;
+    changes: string;
+    isCurrent?: boolean;
+  }>>(() => {
+    // Initialize with entry's current version
+    return [{
+      version: entry.version || 1,
+      editedBy: entry.lastEditedBy,
+      editedAt: entry.lastEditedAt,
+      changes: 'İlk oluşturuldu',
+      isCurrent: true
+    }];
+  });
   
   // Mock user coins - in real app, this would come from user context/state
   const userCoins = 6240; // Level 3 (Gezgin)
+  
+  const currentHistory = wikiHistory || localHistory;
   
   // Interaction states
   const [isHelpful, setIsHelpful] = useState(false);
@@ -621,6 +661,19 @@ export const WikiDetailScreen: React.FC<WikiDetailScreenProps> = ({
 
             {/* Action Buttons */}
             <div className={`flex items-center gap-2 lg:gap-3 mt-4 pt-4 border-t ${isDarkMode ? 'border-slate-700' : 'border-gray-200'}`}>
+              {/* History Button */}
+              <button
+                onClick={() => setIsHistoryModalOpen(true)}
+                className={`flex items-center justify-center gap-1.5 lg:gap-2 px-3 lg:px-4 py-2 rounded-lg font-bold text-xs lg:text-sm transition-all active:scale-95 ${
+                  isDarkMode
+                    ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <Clock className="w-4 h-4" strokeWidth={2} />
+                <span className="hidden sm:inline">Geçmiş</span>
+              </button>
+
               {/* Edit Button - Only for level 3-5 */}
               {canEditWiki(userCoins) && (
                 <button
@@ -773,22 +826,6 @@ export const WikiDetailScreen: React.FC<WikiDetailScreenProps> = ({
             </div>
           )}
 
-          {/* Desktop Edit Button - Only for level 3-5 */}
-          {!isEditMode && canEditWiki(userCoins) && (
-            <div className={`hidden lg:block px-6 py-4 border-t ${isDarkMode ? 'border-slate-700' : 'border-gray-200'}`}>
-              <button
-                onClick={() => setIsCreateWikiModalOpen(true)}
-                className={`w-full px-4 py-3 rounded-xl font-black flex items-center justify-center gap-2 active:scale-95 transition-all ${
-                  isDarkMode 
-                    ? 'bg-[#5852c4] text-white hover:bg-[#4a45b0]' 
-                    : 'bg-[#5852c4] text-white hover:bg-[#4a45b0]'
-                }`}
-              >
-                <Edit className="w-5 h-5" strokeWidth={2.5} />
-                <span>Düzenle</span>
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Comments Section - Separate Card */}
@@ -854,6 +891,48 @@ export const WikiDetailScreen: React.FC<WikiDetailScreenProps> = ({
         isOpen={isCreateWikiModalOpen}
         onClose={() => setIsCreateWikiModalOpen(false)}
         editEntry={entry}
+        onSave={(updatedEntry) => {
+          if (onEntryUpdate) {
+            onEntryUpdate(updatedEntry);
+          }
+          
+          // Add to history
+          const newVersion = (entry.version || 0) + 1;
+          const newHistoryEntry = {
+            version: newVersion,
+            editedBy: 'Sen',
+            editedAt: 'Az önce',
+            changes: 'İçerik güncellendi',
+            isCurrent: true
+          };
+          
+          if (onHistoryUpdate) {
+            const updatedHistory = (currentHistory || []).map(v => ({ ...v, isCurrent: false }));
+            updatedHistory.push(newHistoryEntry);
+            onHistoryUpdate(entry.id, updatedHistory);
+          } else {
+            setLocalHistory(prev => {
+              const updated = prev.map(v => ({ ...v, isCurrent: false }));
+              updated.push(newHistoryEntry);
+              return updated;
+            });
+          }
+          
+          setIsCreateWikiModalOpen(false);
+          toast.success('Wiki entry başarıyla güncellendi!');
+        }}
+      />
+
+      {/* Wiki History Modal */}
+      <WikiHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        wikiTitle={entry.title}
+        versions={currentHistory}
+        onRestoreVersion={(version) => {
+          // Restore version logic can be added here if needed
+          console.log('Restore version:', version);
+        }}
       />
     </div>
   );

@@ -13,7 +13,7 @@ interface CreatePostModalProps {
     category: string;
     badge: string;
   };
-  onSave?: (updatedPost: { id: string; title: string; content: string; category: string; badge: string }) => void;
+  onSave?: (post: { id?: string; title: string; content: string; category: string; badge: string }) => void;
 }
 
 const CATEGORIES = [
@@ -66,17 +66,26 @@ export const CreatePostModal = ({ isOpen, onClose, editPost, onSave }: CreatePos
   }, [isOpen]);
 
   const handleSubmit = () => {
+    const categoryToBadge: Record<string, string> = {
+      'akademik': 'Akademik',
+      'sosyal': 'Sosyal',
+      'yeme-icme': 'Yeme-İçme',
+      'barinma': 'Barınma',
+      'ikinci-el': 'İkinci El',
+    };
+    
     if (editPost && onSave) {
       // Edit mode
-      const categoryToBadge: Record<string, string> = {
-        'akademik': 'Akademik',
-        'sosyal': 'Sosyal',
-        'yeme-icme': 'Yeme-İçme',
-        'barinma': 'Barınma',
-        'ikinci-el': 'İkinci El',
-      };
       onSave({
         id: editPost.id,
+        title,
+        content,
+        category: selectedCategory,
+        badge: categoryToBadge[selectedCategory] || 'Akademik'
+      });
+    } else if (onSave) {
+      // Create mode
+      onSave({
         title,
         content,
         category: selectedCategory,
