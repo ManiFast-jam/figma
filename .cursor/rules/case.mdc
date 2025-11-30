@@ -1,0 +1,236 @@
+Proje Adı: Konya Genç WikiSözlük
+
+1. Proje Vizyonu ve Amacı
+Vizyon: Konya'da yaşayan üniversite öğrencilerinin kolektif aklıyla büyüyen, yaşayan, üreten
+ve sürekli güncel kalan bir "bilgi evreni" oluşturmak.
+Amaç: Wikipedia'nın yapılandırılmış bilgi modelini, Ekşi Sözlük'ün dinamik tartışma kültürüyle
+birleştirmek. Platforma yapılan katkıları (içerik üretimi, düzenleme, mantımsal yorumlama)
+oyunlaştırılmış bir "Coin" sistemiyle ödüllendirmek ve bu ödülleri mevcut "Konya Genç Kültür
+Kart" puan sistemine entegre ederek somut bir değere dönüştürmek.
+2. Hedef Kitle ve Değer Önerisi
+● Hedef Kitle: Konya'daki (Selçuk, Necmettin Erbakan, KTO Karatay, Gıda ve Tarım vb.)
+tüm üniversite öğrencileri.
+● Değer Önerisi (Öğrenci için): "Bilgin ve deneyimin değerli. Konya'daki öğrenci hayatıyla
+ilgili (ders notları, ev/yurt, en iyi kahveci, burslar, stajlar) aradığın her şeyi bul, bildiklerini
+paylaş ve bu katkılarınla 'Genç Kültür Kart' puanları kazan."
+● Değer Önerisi (KBB için): Öğrencilerin nabzını tutmak, onlara yönelik hizmetleri (Genç
+Kültür Kart) teşvik etmek, sosyal sorumluluk bilincini dijital katılımla artırmak ve şehirdeki
+genç entelektüel birikimi tek bir platformda toplamak için denetlenebilir bir yapı sunmak.
+3. Temel Fonksiyonel Gereksinimler (MVP)
+3.1. Kullanıcı Yönetimi ve Kimlik Doğrulama
+1. Kayıt: Sadece "Genç Kültür Kart" ID'si veya KBB tarafından sağlanan bir doğrulama
+sistemi (örn: üniversite .edu.tr maili) ile kayıt olunabilmelidir. Bu, hedef kitleyi filtreler ve
+ekonomiyi kapalı devre tutar.
+2. Kullanıcı Profili: Kullanıcı Adı, Rolü (örn: Seyyah), Toplam Coin, Role özel rozetler,
+Puan Silsilesi (bir sonraki role ilerleme çubuğu), Katkı Geçmişi (açtığı başlıklar,
+düzenlemeler, yorumlar).
+3.2. İçerik Yapısı (Hibrit Model: Wiki + Sözlük)
+1. Başlık (Topic): Platformdaki her konu bir "Başlık"tır. (Örn: "Selçuk Hukuk Final Notları",
+"Konya'da Öğrenci Dostu Restoranlar", "Bosna Hersek Mahallesi Kiralık Ev Rehberi"). 2. Bilgi
+(Wiki) Alanı:
+○ Her başlığın en üstünde yer alan, Wikipedia benzeri, objektif bilgilerin yer aldığı ana
+içerik alanı. (Örn: Bir restoran başlığında; adres, menü linki, fiyat aralığı, çalışma
+saatleri).
+○ Bu alan, belirli rollerdeki (örn: "Gezgin" ve üstü) kullanıcılar tarafından düzenlenebilir
+(edit) olmalıdır.
+○ Sürüm geçmişi (version history) tutulmalı ve geri alma (revert) seçeneği
+
+bulunmalıdır. 3. Yorum (Sözlük) Alanı:
+○ "Bilgi Alanı"nın altında yer alan, Ekşi Sözlük benzeri, subjektif
+yorumların/deneyimlerin tarih sırasına göre (veya oylanarak) listelendiği alan.
+(Örn: Restoran deneyimi, "O mekanın kahvesi harika", "Garsonlar ilgisizdi").
+○ Tüm kayıtlı kullanıcılar yorum yapabilmelidir.
+3.3. Oylama ve Puanlama
+1. Bilgi Alanı Oylaması: "Yararlı" / "Yararsız" (veya "Taraflı", "Eksik" gibi bayraklar). 2.
+Yorum Alanı Oylaması: "Beğen" / "Beğenme" (veya "Mantıklı Yorum" gibi özel bir
+buton).
+4. Temel Konsept: İçerik, Oyunlaştırma ve "GençCoin" Ekonomisi
+Bu bölüm, platformun "yaşayan" bir organizma olmasını sağlayan çekirdek mekanizmadır.
+4.1. Platformun İçerik Sütunları (İçerikte Ne Olacak?)
+Platformun odak noktası sadece Konya'daki üniversite öğrencilerinin ihtiyaç duyduğu
+bilgilerdir. Başlıklar bu kategoriler altında toplanacaktır:
+1. Akademik Destek:
+○ Bölüm/Ders bazlı başlıklar ("Makine Müh. Diferansel Denklem Notları").
+○ Hoca rehberleri ("Prof. Dr. X'ten Ders Alma Rehberi").
+○ Geçmiş sınav soruları, vize/final tüyoları.
+○ En iyi ders çalışma mekanları (kütüphaneler, sessiz kafeler).
+2. Sosyal Yaşam & Mekan Rehberi:
+○ "Öğrenci Dostu" kafeler, restoranlar, çorbacılar (Fiyat/Performans odaklı).
+○ Konya'daki etkinlikler (Konserler, tiyatrolar, KBB etkinlikleri).
+○ Gidilebilecek parklar, sosyalleşme alanları.
+3. Barınma & Yaşam:
+○ KYK ve özel yurt rehberleri (artıları/eksileri).
+○ Mahalle analizleri ("Bosna Hersek Mahallesi Ev Kiralama Tüyoları", "Zafer civarında
+yaşamak").
+○ Ev arkadaşı bulma ilanları için güvenli bir alt bölüm.
+○ Ulaşım rehberi (otobüs/tramvay hatları, elkart tüyoları).
+4. Kariyer & Gelişim:
+○ Konya içi staj ve yarı zamanlı (part-time) iş ilanları.
+○ KBB Gençlik Merkezi projeleri, gönüllülük fırsatları.
+○ Burs duyuruları (Vakıflar, özel burslar).
+5. Konya Keşif Rehberi (Öğrenci Gözüyle):
+○ Mevlana, Kelebekler Vadisi vb. turistik yerlere nasıl gidilir, ne zaman gidilir. ○
+"Etli ekmek nerede yenir?" gibi klasik soruların cevaplandığı başlıklar.
+
+4.2. Oyunlaştırma Felsefesi (Nasıl Çalışacak?)
+Amaç, pasif bilgi tüketicisini, aktif katkı sağlayan bir "üreticiye" dönüştürmektir. Bu, "Katkı
+Döngüsü" ile sağlanır:
+Katkı Yap -> GençCoin Kazan -> Rol Atla -> Daha Fazla Kazan & Yetki Edin ->
+GençCoin'i Kültür Kart Puanına Çevir (Somut Ödül)
+● Katkı Yap: Kullanıcı yorum yazar, "Bilgi Alanı"nı günceller veya yeni bir başlık açar. ●
+Coin Kazan: Yaptığı katkı veya başkalarından aldığı olumlu oy (beğeni, yararlı)
+karşılığında anında "GençCoin" kazanır.
+● Rol Atla: Biriken Coin'ler "Puan Silsilesini" doldurur ve kullanıcı bir üst role terfi eder. ●
+Daha Fazla Kazan: Üst roller, "çarpan" sayesinde aynı eylemden daha fazla Coin kazanır
+(Örn: "Yeni Gelen" +10 kazanırken, "Kaşif" +20 kazanır).
+● Yetki Edin: Üst roller, platformun yönetimine (moderasyon, yeni başlık açma) katılır.
+● Somut Ödül: Biriken Coin'leri gerçek dünyada bir değere (Genç Kültür Kart Puanı)
+dönüştürmek, döngünün devamlılığını sağlar.
+4.3. "GençCoin" Kazanma Matrisi (Örnek Taslak)
+Bu matris, platformun motorudur ve KBB Admin Panelinden ayarlanabilir olmalıdır.
+Eylem Temel Puan (Rol:
+Yeni Gelen)
+
+Notlar
+
+İçerik Üretme
+Yeni Başlık Açma +20 Coin (Sadece "Gezgin" ve
+üstü roller)
+
+"Bilgi Alanı"
+Düzenlemesi Yapma
+
++10 Coin (Düzenleme
+onaylandığında/geri
+alınmadığında)
+
+"Yorum Alanı"na
+Yorum Yazma
+
++2 Coin (Spam/flood kontrolü
+
+gerekir)
+
+Etkileşim Alma
+"Bilgi Alanı"
+Düzenlemesinin
+"Yararlı" Oy Alması
+
++5 Coin (Her oy için)
+
+"Bilgi Alanı"
+Düzenlemesinin
+"Yararsız" Oy Alması
+
+-10 Coin (Her oy için) (Negatif bakiye
+olabilir, caydırıcılık
+için önemli)
+
+Yorumun "Beğen" Alması +1 Coin (Her beğeni için)
+Sosyal Sorumluluk
+(Kritik Bağlantı)
+Genç Kültür Kart ile
+yapılan S.S. Projesi
+
++100 Coin (KBB
+API'den çekilir)
+
+(Gerçek dünyadaki
+eylemi dijitale bağlar)
+
+4.4. Roller ve Puan Silsilesi (Detaylandırılmış)
+Kullanıcıların toplam "Coin" miktarı, rollerini belirler. Yüksek roller, eylemlerden daha fazla
+puan kazanır (çarpan mantığı).
+Rol 1: Yeni Gelen (0 - 500 Coin)
+○ Persona: "Meraklı Gözlemci". Platformu yeni keşfediyor, bilgi tüketiyor. ○
+Çarpan: 1.0x
+○ Yetkiler: "Yorum Alanı"na yorum yapabilir. "Bilgi Alanı" için düzenleme teklif
+edebilir (onay gerekir).
+○ Kısıtlamalar: Spam'i önlemek için saatlik/günlük yorum limiti (örn: 1 saatte 5 yorum).
+Başlık açamaz. Yaptığı düzenleme teklifleri "Kaşif Meraklısı" rolünün onayına düşer. ○
+Amaç: Platformu öğrenmek, ilk katkıları yapmak, güven oluşturmak.
+Rol 2: Seyyah (501 - 2.500 Coin)
+○ Persona: "Katkıda Bulunan". Artık platformun bir parçası, deneyimlerini paylaşıyor. ○
+Çarpan: 1.2x
+○ Yetkiler: Yorum limitleri kalkar. "Bilgi Alanı"nı (Wiki) doğrudan düzenleyebilir. ○
+Kısıtlamalar: Düzenlemeleri anında yayınlanır ancak denetime tabidir (KBB veya üst
+roller tarafından incelenebilir/geri alınabilir). Hala yeni başlık açamaz.
+○ Amaç: "Bilgi Alanı"nı zenginleştirmek, objektif bilgileri güncellemek.
+Rol 3: Gezgin (2.501 - 10.000 Coin)
+○ Persona: "Güvenilir İçerik Üretici". Platformun temel direklerinden biri. ○
+Çarpan: 1.5x
+○ Yetkiler: Yeni başlık açabilir. Platformun ufkunu genişletir. Tüm düzenlemeleri
+yapabilir. Yaptığı düzenlemelere topluluk daha fazla güvenir.
+○ Kısıtlamalar: Açtığı başlıklar, KBB'nin belirlediği "Kullanım Sözleşmesi"ne uygunluk
+
+açısından denetime tabidir.
+○ Amaç: Platformun konu envanterini (içerik sütunlarını) genişletmek.
+Rol 4: Kaşif Meraklısı (10.001 - 50.000 Coin)
+○ Persona: "Topluluk Lideri / Moderatör". Platformun kalitesini ve sağlığını koruyan
+kişi.
+○ Çarpan: 2.0x
+○ Yetkiler: Moderasyon yetkileri kazanır. "Yeni Gelen" rolünün düzenleme tekliflerini
+onaylayabilir/reddedebilir. Spam veya uygunsuz yorumları silebilir. "Bayraklanan"
+(flagged) içerikleri KBB'den önce inceleyip çözebilir.
+○ Amaç: Kalite kontrolü, topluluk sağlığını korumak, KBB'nin denetim yükünü
+hafifletmek.
+Rol 5: Konya Bilgesi (50.001+ Coin)
+○ Persona: "Usta Rehber / Elit Katılımcı". Platformun zirvesi, en güvenilir üyesi. ○
+Çarpan: 2.5x
+○ Yetkiler: Üst düzey moderasyon yetkileri (örn: "Kaşif"lerin eylemlerini denetleme).
+KBB denetim paneline sınırlı erişim (örn: sadece "Bayraklanan İçerik Akışı"nı görme
+ve KBB'ye tavsiye notu bırakma).
+○ Ödül: Yeni özellikler için KBB ile yapılacak Fikir/Görüş (Feedback) toplantılarına
+davet edilme, platformun geleceğine yön verme.
+○ Amaç: Platformun stratejisine ve uzun vadeli sağlığına katkıda bulunmak.
+Not: "Kaşif Meraklısı" (Rol 4) rolündeki bir kullanıcı "Bilgi Alanı" düzenlemesi yaptığında 10 Coin
+yerine (10 * 2.0) = 20 Coin kazanır.
+4.5. Coin Harcama (Genç Kültür Kart Entegrasyonu)
+1. Dönüşüm Arayüzü: Kullanıcı profilinde "Coin'leri Karta Aktar" butonu. 2. Dönüşüm Oranı:
+KBB tarafından belirlenmelidir (Örn: 1000 GençCoin = 10 Genç Kültür Kart Puanı). Bu oran,
+KBB Admin Panelinden ayarlanabilir olmalıdır (Ekonomiyi dengelemek için).
+3. API Çağrısı: İşlem, KBB Genç Kültür Kart sistemine güvenli bir API çağrısı ile puanı
+aktarmalıdır.
+5. Marka Kimliği ve İsim Önerileri
+Projenin başarısı için akılda kalıcı ve hedef kitleyle bağ kuran bir isim şarttır.
+● İsim Stratejisi: İsim; "Konya", "Gençlik/Öğrenci", "Bilgi" ve "Etkileşim" (Sözlük/Wiki)
+kavramlarından en az üçünü yansıtmalıdır.
+6. Web Sitesi Tasarım Felsefesi ve Arayüz (UI/UX)
+Platform, öğrencilerin günlük hayatının bir parçası olacaksa, kullanımı son derece kolay ve
+hızlı olmalıdır.
+● Tasarım Felsefesi:
+
+1. Mobil-Öncelikli (Mobile-First): Öğrenciler platforma %80-90 mobil cihazlardan
+erişecektir. Tasarım öncelikle mobil için yapılmalı, sonra masaüstüne uyarlanmalıdır. 2.
+Hızlı ve Basit: Bilgiye erişim (özellikle arama) ve katkı yapma (yorum
+yazma/düzenleme) çok hızlı olmalıdır.
+3. Oyunlaştırma Odaklı: Kullanıcı profilindeki "Puan Silsilesi" (XP Bar) ve "GençCoin"
+bakiyesi her zaman görünür olmalı, kullanıcıyı katkıya teşvik etmelidir.
+● Kritik Arayüz Elemanları:
+1. Ana Sayfa (Keşfet): Dinamik bir akış. "Trend Başlıklar" (en çok düzenlenen Wiki'ler),
+"Popüler Yorumlar" (en çok beğenilen Sözlük girişleri) ve KBB duyuruları. Arama
+çubuğu en tepede ve belirgin olmalıdır.
+2. Başlık Sayfası: Net bir ayrım olmalı:
+■ Üst Kısım: Sabit "Bilgi Alanı" (Wiki). Objektif bilgi (adres, saatler, dersin
+formülleri).
+■ Alt Kısım: Akışkan "Yorum Alanı" (Sözlük). Subjektif deneyimler.
+3. Kullanıcı Profili (Oyun Merkezi): Burası kullanıcının "ana üssü"dür. ■
+Rolü (Seyyah, Gezgin...) ve özel rozeti.
+■ Mevcut "GençCoin" bakiyesi.
+■ Bir sonraki role geçiş için ilerleme çubuğu ("XP Bar").
+■ "Coin'leri Karta Aktar" butonu (en önemli Eylem Çağrısı - CTA).
+■ "Katkılarım" sekmesi (yaptığı düzenlemeler, yorumlar).
+○ Referans Sistemi: "Arkadaşını Davet Et, ikiniz de 100 GençCoin kazanın."
+7. Ek Düşünceler ve Gelecek Vizyonu (Aklıma Gelmeyenler)
+● Üniversite API Entegrasyonları: (Faz 2) Üniversitelerin izin vermesi durumunda,
+yemekhane listeleri, ders programları veya sınav takvimleri gibi verilerin API üzerinden
+çekilerek ilgili başlıklara (örn: "NEÜ Mühendislik Yemekhanesi") entegre edilmesi.
+● Alt Topluluklar (Loncalar/Guilds): (Faz 2) Platform içinde sadece belirli bir gruba özel
+(örn: "Selçuk Hukuk Öğrencileri" veya "NEÜ Tıp Öğrencileri") alt forumlar/gruplar
+oluşturulması. Bu gruplar, daha niş ve özel bilgilerin (ders notları, hoca tüyoları)
+paylaşılması için kullanılabilir.
+● Anlık Etkinlik Haritası: (Faz 3) "Şu anda Konya'da ne var?" sorusuna cevap veren,
+lokasyon bazlı, anlık bir harita. Kullanıcılar ("Gezgin" ve üstü) "Şu an Alaeddin'de canlı
+müzik başladı" gibi anlık bildirimler ekleyebilir.---
+alwaysApply: true
+---
