@@ -13,7 +13,7 @@ import { Button } from '../ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { ContributionsScreen } from './ContributionsScreen';
 import { FollowersScreen } from './FollowersScreen';
-import { RightSidebar } from '../layout/RightSidebar';
+import { useCoins } from '../../contexts/CoinContext';
 const kasifBadge = '/images/b720c92d392edc4e03737e032c4f64b443d69150.png';
 const seyyahBadge = '/images/00b07162d5b8b006019514145544fe2039cee667.png';
 const gezginBadge = '/images/628becb8ed3dbf1dbd57717ef0eda68173b358fa.png';
@@ -237,6 +237,7 @@ export const ProfileScreen = ({
   onBack,
 }: ProfileScreenProps = {}) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const { coins: contextCoins } = useCoins();
   const isViewingOtherUser = !!userId && !!userData;
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -322,7 +323,7 @@ export const ProfileScreen = ({
   // User Stats (Demo Data) - Different coins for different users
   const userCoins = isViewingOtherUser && userData?.coins 
     ? userData.coins 
-    : 6240; // Default user coins
+    : (contextCoins || 6240); // Use context coins if available
   const roleData = getUserRole(userCoins);
   const progressPercentage = roleData.nextLimit 
     ? (roleData.current / roleData.nextLimit) * 100 
@@ -483,8 +484,7 @@ export const ProfileScreen = ({
 
       {/* Main Container */}
       <div className="max-w-[1200px] mx-auto pt-[120px] lg:pt-[84px] mt-0 px-0 lg:px-6">
-        <div className="flex gap-6">
-          <main className="w-full lg:w-[70%] px-0">
+          <main className="w-full px-0">
             {/* Back Button for Other User Profile */}
             {isViewingOtherUser && onBack && (
               <div className="mb-6 px-4 lg:px-0">
@@ -543,38 +543,40 @@ export const ProfileScreen = ({
 
         {/* Identity Section + Card + Roles: Mobile: Stack, Desktop: Side-by-Side */}
         <div className="pt-20 pb-6 px-4 lg:px-8">
-          <div className="flex flex-col lg:flex-row lg:items-stretch gap-6">
+          {/* User Info - Full Width */}
+          <div className="text-center lg:text-left mb-6">
+            <h1 className={`text-3xl font-black ${isDarkMode ? 'text-white' : 'text-[#19142e]'} mb-1 break-words`}>{formData.fullName}</h1>
+            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-[#8279a5]'} font-semibold mb-4`}>{formData.school.split(' ')[0]} Üni. - {formData.department.split(' ')[0]}</p>
             
-            {/* Left Column: User Info + Roles + Referral (Desktop) - 60% or 100% if viewing other user */}
-            <div className={`flex flex-col gap-6 ${isViewingOtherUser ? 'lg:w-full' : 'lg:w-[60%]'}`}>
-              {/* User Info */}
-              <div className="text-center lg:text-left">
-                <h1 className={`text-3xl font-black ${isDarkMode ? 'text-white' : 'text-[#19142e]'} mb-1 break-words`}>{formData.fullName}</h1>
-                <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-[#8279a5]'} font-semibold mb-4`}>{formData.school.split(' ')[0]} Üni. - {formData.department.split(' ')[0]}</p>
-                
-                {/* Stats Row */}
-                <div className="flex items-center gap-4 justify-center lg:justify-start">
-                  <button
-                    onClick={() => setShowFollowers(true)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 cursor-pointer ${isDarkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-[#f2f3f7] hover:bg-[#e5e7eb]'}`}
-                  >
-                    <Users className="w-4 h-4 text-[#5852c4]" strokeWidth={2.5} />
-                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-[#19142e]'}`}>{formData.followers}</span>
-                    <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-[#8279a5]'}`}>Takipçi</span>
-                  </button>
-                  <button
-                    onClick={() => setShowContributions(true)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 cursor-pointer ${isDarkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-[#f2f3f7] hover:bg-[#e5e7eb]'}`}
-                  >
-                    <TrendingUp className="w-4 h-4 text-[#5852c4]" strokeWidth={2.5} />
-                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-[#19142e]'}`}>{formData.contributions}</span>
-                    <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-[#8279a5]'}`}>Katkı</span>
-                  </button>
-                </div>
-              </div>
+            {/* Stats Row */}
+            <div className="flex items-center gap-4 justify-center lg:justify-start">
+              <button
+                onClick={() => setShowFollowers(true)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 cursor-pointer ${isDarkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-[#f2f3f7] hover:bg-[#e5e7eb]'}`}
+              >
+                <Users className="w-4 h-4 text-[#5852c4]" strokeWidth={2.5} />
+                <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-[#19142e]'}`}>{formData.followers}</span>
+                <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-[#8279a5]'}`}>Takipçi</span>
+              </button>
+              <button
+                onClick={() => setShowContributions(true)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 cursor-pointer ${isDarkMode ? 'bg-slate-800/50 hover:bg-slate-800' : 'bg-[#f2f3f7] hover:bg-[#e5e7eb]'}`}
+              >
+                <TrendingUp className="w-4 h-4 text-[#5852c4]" strokeWidth={2.5} />
+                <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-[#19142e]'}`}>{formData.contributions}</span>
+                <span className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-[#8279a5]'}`}>Katkı</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 60/30 Layout: Solda Gezgin kartları + Davet (%60), Sağda Kart (%30) */}
+          {!isViewingOtherUser && (
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Sol Yarı: Gezgin Kartları + Davet Alanı (%60) */}
+            <div className="w-full lg:w-[60%] flex flex-col gap-6">
 
               {/* ROLE & MULTIPLIER CAROUSEL - Desktop Only */}
-              <div className="hidden lg:block">
+              <div className="hidden lg:block flex-1">
                 <div 
                   ref={desktopCarouselRef}
                   className="overflow-x-auto scrollbar-hide pb-2" 
@@ -675,8 +677,7 @@ export const ProfileScreen = ({
                 </div>
               </div>
 
-              {/* REFERRAL WIDGET - Desktop Only (Below Role Carousel, Full Width) - Only show for own profile */}
-              {!isViewingOtherUser && (
+              {/* REFERRAL WIDGET - Desktop Only (Below Role Carousel) - Only show for own profile */}
               <div className="hidden lg:block">
                 <div 
                   className="rounded-xl p-5 border-2 border-dashed border-[#5852c4]/40 shadow-sm relative overflow-hidden"
@@ -738,136 +739,135 @@ export const ProfileScreen = ({
                   </div>
                 </div>
               </div>
-              )}
             </div>
 
-            {/* Right: Genç Kültür Kart - 40% - Only show for own profile */}
-            {!isViewingOtherUser && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="relative w-full lg:w-auto flex-shrink-0"
-            >
-              <TooltipProvider>
-                {/* Card Container - Horizontal Card (248x334) */}
-                <div className="relative w-[334px] h-[248px] mx-auto lg:mx-0 rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(25,20,46,0.25)]">
+            {/* Sağ Yarı: Genç Kültür Kart (%30) */}
+            <div className="w-full lg:w-[30%] flex justify-end">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative"
+              >
+                <TooltipProvider>
+                  {/* Card Container - Horizontal Card (248x334) */}
+                  <div className="relative w-[334px] h-[248px] ml-auto lg:ml-auto rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(25,20,46,0.25)]">
         
-                  {/* Violet Gradient Background with Depth */}
-                  <div className="absolute inset-0 violet-gradient" />
+                    {/* Violet Gradient Background with Depth */}
+                    <div className="absolute inset-0 violet-gradient" />
 
-                  {/* Neon Purple/Pink Geometric Triangles Pattern */}
-                  <div className="absolute inset-0 opacity-30">
-                    {/* Triangle 1 - Purple */}
-                    <div className="absolute top-[10%] left-[15%] w-24 h-24 rotate-45">
-                      <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 opacity-60 blur-xl" 
-                           style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
-                    </div>
-                    
-                    {/* Triangle 2 - Pink */}
-                    <div className="absolute top-[50%] right-[10%] w-32 h-32 -rotate-12">
-                      <div className="w-full h-full bg-gradient-to-br from-pink-400 to-purple-500 opacity-50 blur-2xl" 
-                           style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
-                    </div>
-                    
-                    {/* Triangle 3 - Purple */}
-                    <div className="absolute bottom-[15%] left-[20%] w-20 h-20 rotate-[135deg]">
-                      <div className="w-full h-full bg-gradient-to-br from-purple-500 to-violet-400 opacity-70 blur-xl" 
-                           style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
-                    </div>
-
-                    {/* Additional floating shapes for depth */}
-                    <div className="absolute top-[30%] left-[50%] w-16 h-16 rotate-45 bg-gradient-to-br from-fuchsia-400 to-purple-400 opacity-30 blur-2xl rounded-lg" />
-                    <div className="absolute bottom-[30%] right-[30%] w-20 h-20 -rotate-12 bg-gradient-to-br from-violet-400 to-pink-400 opacity-40 blur-xl" />
-                  </div>
-
-                  {/* Subtle inner glow effect (Cuberto signature) */}
-                  <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]" />
-
-                  {/* Content Layer - Horizontal Layout */}
-                  <div className="relative z-10 h-full p-6 flex items-center justify-between text-[#f4f4f4]">
-                    
-                    {/* Left Side: Logo & User Info */}
-                    <div className="flex-1 flex flex-col justify-between h-full">
-                      {/* Top: Logo */}
-                      <div>
-                        <div className="text-xs font-bold tracking-wider opacity-95">GENÇ KÜLTÜR KART</div>
-                        <div className="text-[10px] font-medium text-white/70 mt-0.5">Konya Büyükşehir</div>
-                      </div>
-
-                      {/* Middle: Balance */}
-                      <div>
-                        <div className="text-sm font-medium text-white/70 mb-1">Toplam Bakiye</div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-4xl font-black tracking-tight">{userCoins.toLocaleString()}</span>
-                          <span className="text-lg font-bold text-white/90">GençCoin</span>
-                        </div>
-                      </div>
-
-                      {/* Bottom: User Info */}
-                      <div>
-                        <div className="text-xs font-bold tracking-wide break-words">{formData.fullName}</div>
-                        <div className="text-[10px] text-white/60 mt-1 font-mono tracking-wider">**** **** **** 1453</div>
-                      </div>
-                    </div>
-
-                    {/* Right Side: Action Buttons & QR Code */}
-                    <div className="flex flex-col items-end justify-between h-full">
-                      {/* Action Buttons with Tooltips */}
-                      <div className="flex items-center gap-2">
-                        {/* Transfer/Contact Button */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={() => {
-                                console.log('💳 Coin aktarımı başlatıldı');
-                                toast.success('Coin aktarımı başlatıldı');
-                              }}
-                              className="w-10 h-10 rounded-lg bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all active:scale-95"
-                            >
-                              <ArrowLeftRight className="w-5 h-5 text-white/90" strokeWidth={2} />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" sideOffset={8}>
-                            <p>Coin Aktar</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        {/* History Button */}
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={() => {
-                                console.log('📜 Geçmiş İşlemler açıldı');
-                                toast.success('Geçmiş işlemler açıldı');
-                              }}
-                              className="w-10 h-10 rounded-lg bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all active:scale-95"
-                            >
-                              <Clock className="w-5 h-5 text-white/90" strokeWidth={2} />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" sideOffset={8}>
-                            <p>Geçmiş</p>
-                          </TooltipContent>
-                        </Tooltip>
+                    {/* Neon Purple/Pink Geometric Triangles Pattern */}
+                    <div className="absolute inset-0 opacity-30">
+                      {/* Triangle 1 - Purple */}
+                      <div className="absolute top-[10%] left-[15%] w-24 h-24 rotate-45">
+                        <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 opacity-60 blur-xl" 
+                             style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
                       </div>
                       
-                      {/* QR Code Icon */}
-                      <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-md">
-                        <div className="w-10 h-10 bg-[#19142e] rounded-lg flex items-center justify-center">
-                          <QrCode className="w-6 h-6 text-white" strokeWidth={2} />
+                      {/* Triangle 2 - Pink */}
+                      <div className="absolute top-[50%] right-[10%] w-32 h-32 -rotate-12">
+                        <div className="w-full h-full bg-gradient-to-br from-pink-400 to-purple-500 opacity-50 blur-2xl" 
+                             style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
+                      </div>
+                      
+                      {/* Triangle 3 - Purple */}
+                      <div className="absolute bottom-[15%] left-[20%] w-20 h-20 rotate-[135deg]">
+                        <div className="w-full h-full bg-gradient-to-br from-purple-500 to-violet-400 opacity-70 blur-xl" 
+                             style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
+                      </div>
+
+                      {/* Additional floating shapes for depth */}
+                      <div className="absolute top-[30%] left-[50%] w-16 h-16 rotate-45 bg-gradient-to-br from-fuchsia-400 to-purple-400 opacity-30 blur-2xl rounded-lg" />
+                      <div className="absolute bottom-[30%] right-[30%] w-20 h-20 -rotate-12 bg-gradient-to-br from-violet-400 to-pink-400 opacity-40 blur-xl" />
+                    </div>
+
+                    {/* Subtle inner glow effect (Cuberto signature) */}
+                    <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]" />
+
+                    {/* Content Layer - Horizontal Layout */}
+                    <div className="relative z-10 h-full p-6 flex items-center justify-between text-[#f4f4f4]">
+                      
+                      {/* Left Side: Logo & User Info */}
+                      <div className="flex-1 flex flex-col justify-between h-full">
+                        {/* Top: Logo */}
+                        <div>
+                          <div className="text-xs font-bold tracking-wider opacity-95">GENÇ KÜLTÜR KART</div>
+                          <div className="text-[10px] font-medium text-white/70 mt-0.5">Konya Büyükşehir</div>
+                        </div>
+                        
+                        {/* Middle: Balance */}
+                        <div>
+                          <div className="text-sm font-medium text-white/70 mb-1">Toplam Bakiye</div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-black tracking-tight">{userCoins.toLocaleString()}</span>
+                            <span className="text-lg font-bold text-white/90">GençCoin</span>
+                          </div>
+                        </div>
+
+                        {/* Bottom: User Info */}
+                        <div>
+                          <div className="text-xs font-bold tracking-wide break-words">{formData.fullName}</div>
+                          <div className="text-[10px] text-white/60 mt-1 font-mono tracking-wider">**** **** **** 1453</div>
+                        </div>
+                      </div>
+
+                      {/* Right Side: Action Buttons & QR Code */}
+                      <div className="flex flex-col items-end justify-between h-full">
+                        {/* Action Buttons with Tooltips */}
+                        <div className="flex items-center gap-2">
+                          {/* Transfer/Contact Button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => {
+                                  console.log('💳 Coin aktarımı başlatıldı');
+                                  toast.success('Coin aktarımı başlatıldı');
+                                }}
+                                className="w-10 h-10 rounded-lg bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all active:scale-95"
+                              >
+                                <ArrowLeftRight className="w-5 h-5 text-white/90" strokeWidth={2} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" sideOffset={8}>
+                              <p>Coin Aktar</p>
+                            </TooltipContent>
+                          </Tooltip>
+
+                          {/* History Button */}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button 
+                                onClick={() => {
+                                  console.log('📜 Geçmiş İşlemler açıldı');
+                                  toast.success('Geçmiş işlemler açıldı');
+                                }}
+                                className="w-10 h-10 rounded-lg bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all active:scale-95"
+                              >
+                                <Clock className="w-5 h-5 text-white/90" strokeWidth={2} />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" sideOffset={8}>
+                              <p>Geçmiş</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        
+                        {/* QR Code Icon */}
+                        <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-md">
+                          <div className="w-10 h-10 bg-[#19142e] rounded-lg flex items-center justify-center">
+                            <QrCode className="w-6 h-6 text-white" strokeWidth={2} />
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    {/* Glossy Reflection Effect (Premium Touch) */}
+                    <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/8 to-transparent pointer-events-none" />
                   </div>
-
-                  {/* Glossy Reflection Effect (Premium Touch) */}
-                  <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/8 to-transparent pointer-events-none" />
-                </div>
-              </TooltipProvider>
-            </motion.div>
-            )}
-
+                </TooltipProvider>
+              </motion.div>
+            </div>
           </div>
+          )}
         </div>
 
         {/* ROLE & MULTIPLIER CAROUSEL - Mobile Only */}
@@ -1355,24 +1355,7 @@ export const ProfileScreen = ({
             )}
           </div>
         </div>
-
-          </main>
-
-          {/* RIGHT COLUMN - Sticky Sidebar (30%) - Desktop Only */}
-          <RightSidebar 
-            onProfileClick={() => {
-              if (isViewingOtherUser && onBack) {
-                onBack();
-              } else {
-                onTabChange?.('profile');
-              }
-            }}
-            onWalletOpen={() => setIsWalletModalOpen(true)}
-            onGameClick={onGameSelect}
-            onGameCenterClick={onGameCenterClick}
-            userCoins={userCoins}
-          />
-        </div>
+        </main>
       </div>
 
       {/* Wallet Modal */}

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Camera, X, Check, UtensilsCrossed, Bus, Library, PartyPopper, ChevronRight } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, X, Check, UtensilsCrossed, Bus, Library, PartyPopper, ChevronRight, Upload, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlobalHeader } from '../layout/GlobalHeader';
 import { PageLayout } from '../layout/PageLayout';
 import { WalletModal } from '../wallet/WalletModal';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { useCoins } from '../../contexts/CoinContext';
+import { toast } from 'sonner';
 
 interface Category {
   id: string;
@@ -19,28 +21,28 @@ const CATEGORIES: Category[] = [
     id: 'food',
     label: 'Yemek Menüsü',
     icon: UtensilsCrossed,
-    color: '#F59E0B',
+    color: '#5852c4',
     statusOptions: ['Çok Güzel', 'İyi', 'Orta', 'Kötü'],
   },
   {
     id: 'bus',
     label: 'Otobüs Sırası',
     icon: Bus,
-    color: '#3b82f6',
+    color: '#6c5ce7',
     statusOptions: ['Sıra Çok', 'Sıra Az', 'Otobüs Boş'],
   },
   {
     id: 'library',
     label: 'Kütüphane',
     icon: Library,
-    color: '#8b5cf6',
+    color: '#7c3aed',
     statusOptions: ['Çok Dolu', 'Orta', 'Boş'],
   },
   {
     id: 'event',
     label: 'Etkinlik',
     icon: PartyPopper,
-    color: '#ec4899',
+    color: '#a855f7',
     statusOptions: ['Kalabalık', 'Normal', 'Sakin'],
   },
 ];
@@ -58,11 +60,161 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [photoMode, setPhotoMode] = useState<'camera' | 'upload'>('camera');
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { addCoins } = useCoins();
+
+  const requestCameraAccess = async () => {
+    try {
+      // Check if we're on HTTPS or localhost
+      const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isSecure) {
+        setCameraError('Kamera erişimi için HTTPS bağlantısı gereklidir. Lütfen güvenli bir bağlantı kullanın.');
+        return;
+      }
+
+      // Check if getUserMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setCameraError('Bu tarayıcı kamera erişimini desteklemiyor. Lütfen modern bir tarayıcı kullanın (Chrome, Firefox, Safari, Edge).');
+        return;
+      }
+
+      console.log('📸 Requesting camera access...');
+      
+      // Request camera access with fallback options
+      let mediaStream: MediaStream;
+      try {
+        // Try with back camera first (mobile)
+        mediaStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          } 
+        });
+        console.log('✅ Camera access granted (back camera)');
+      } catch (envError) {
+        console.log('⚠️ Back camera failed, trying user camera...');
+        // Fallback to user camera (front camera)
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+              facingMode: 'user',
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            } 
+          });
+          console.log('✅ Camera access granted (front camera)');
+        } catch (userError) {
+          // Last fallback: any available camera
+          mediaStream = await navigator.mediaDevices.getUserMedia({ 
+            video: true
+          });
+          console.log('✅ Camera access granted (any camera)');
+        }
+      }
+      
+      setStream(mediaStream);
+      setCameraError(null);
+      console.log('📹 Stream active:', mediaStream.active);
+      console.log('📹 Video tracks:', mediaStream.getVideoTracks().length);
+    } catch (error: any) {
+      console.error('❌ Camera access error:', error);
+      let errorMessage = 'Kamera erişimi reddedildi.';
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        errorMessage = 'Kamera izni reddedildi. Lütfen tarayıcı ayarlarından kamera iznini verin ve sayfayı yenileyin.';
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        errorMessage = 'Kamera bulunamadı. Lütfen cihazınızda bir kamera olduğundan emin olun.';
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+        errorMessage = 'Kamera kullanımda olabilir. Lütfen başka bir uygulamayı kapatın ve tekrar deneyin.';
+      } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+        errorMessage = 'Kamera ayarları desteklenmiyor. Lütfen farklı bir kamera deneyin.';
+      } else if (error.name === 'NotSupportedError') {
+        errorMessage = 'Bu özellik desteklenmiyor. Lütfen HTTPS bağlantısı kullanın.';
+      } else {
+        errorMessage = `Kamera hatası: ${error.message || error.name}`;
+      }
+      
+      setCameraError(errorMessage);
+      setStream(null);
+    }
+  };
+
+  // Request camera access
+  useEffect(() => {
+    if (photoMode === 'camera' && selectedCategory && !stream) {
+      requestCameraAccess();
+    }
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        setStream(null);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photoMode, selectedCategory]);
+
+  // Update video element when stream changes
+  useEffect(() => {
+    const video = videoRef.current;
+    if (stream && video) {
+      video.srcObject = stream;
+      // Muted is required for autoplay in some browsers
+      video.muted = true;
+      video.play().catch(err => {
+        console.error('Video play error:', err);
+        setCameraError('Video oynatılamadı: ' + err.message);
+      });
+    }
+    return () => {
+      if (video) {
+        video.srcObject = null;
+      }
+    };
+  }, [stream]);
 
   const handleCapturePhoto = () => {
-    // Mock photo capture - use a placeholder image
-    const mockPhotoUrl = 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1';
-    setCapturedPhoto(mockPhotoUrl);
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    
+    if (!context) return;
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0);
+    
+    const photoUrl = canvas.toDataURL('image/jpeg');
+    setCapturedPhoto(photoUrl);
+    
+    // Stop camera stream
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (validTypes.includes(file.type)) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setCapturedPhoto(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('Sadece JPG ve PNG dosyaları kabul edilir.');
+      }
+    }
   };
 
   const handlePublish = () => {
@@ -74,6 +226,11 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
       photo: capturedPhoto,
       timestamp: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
     });
+
+    // Add coins for completing the report
+    const coinReward = 75;
+    addCoins(coinReward);
+    toast.success(`+${coinReward} GençCoin kazandınız!`);
 
     setShowSuccess(true);
     setTimeout(() => {
@@ -123,20 +280,33 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
           >
           
           {!selectedCategory ? (
-            <div className="px-5 py-6">
+            <div className="px-0">
               
-              <div className="mb-6 text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-600 mb-4 shadow-lg relative">
-                  <Camera className="w-8 h-8 text-white" strokeWidth={2.5} />
-                  <motion.div
-                    animate={{ opacity: [1, 0.3, 1] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 border-2 border-white"
-                  />
+              {/* Hero Header */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-[#5852c4] via-[#6c5ce7] to-[#7c3aed] px-5 py-8 rounded-t-xl">
+                {/* Decorative Background Pattern */}
+                <div className="absolute inset-0 opacity-10">
+                  <div className="absolute top-4 right-4 w-24 h-24 rounded-full bg-white blur-2xl" />
+                  <div className="absolute bottom-8 left-8 w-32 h-32 rounded-full bg-white blur-3xl" />
                 </div>
-                <h1 className="text-3xl font-black text-[#19142e] mb-2">Kampüs Muhabiri</h1>
-                <p className="text-gray-600 font-semibold">Yemekhane, otobüs veya kütüphane... Durum ne?</p>
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <Camera className="w-6 h-6 text-white" strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-black text-white">Kampüs Muhabiri</h1>
+                      <p className="text-white/90 text-sm font-semibold">Yemekhane, otobüs veya kütüphane... Durum ne?</p>
+                    </div>
+                  </div>
+                  <p className="text-white/80 text-sm leading-relaxed">
+                    Fotoğraf çek, durumu etiketle, anında paylaş! Tüm kampüs anlık bilgilerle güncel kalacak.
+                  </p>
+                </div>
               </div>
+
+              <div className="px-5 py-6">
 
               <div className="space-y-3">
                 <h2 className="text-lg font-bold text-[#19142e] mb-3">Neyi Rapor Ediyorsun?</h2>
@@ -171,73 +341,171 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
                 })}
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800 font-semibold text-center leading-relaxed">
-                  📸 Fotoğraf çek, durumu etiketle, anında paylaş!<br/>
-                  Tüm kampüs anlık bilgilerle güncel kalacak.
-                </p>
               </div>
             </div>
           ) : !capturedPhoto ? (
-            <div className="relative h-screen">
-              
-              <div className="relative h-[70vh] bg-black overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-gray-800 via-gray-700 to-gray-800 flex items-center justify-center">
-                  <div className="text-center">
-                    <Camera className="w-24 h-24 text-gray-600 mx-auto mb-4" strokeWidth={1.5} />
-                    <p className="text-gray-400 font-semibold">Kamera Önizlemesi</p>
-                    <p className="text-gray-500 text-sm">(Demo Mode)</p>
-                  </div>
-                </div>
-
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="w-full h-full grid grid-cols-3 grid-rows-3">
-                    {[...Array(9)].map((_, i) => (
-                      <div key={i} className="border border-white/10" />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
-                  <div 
-                    className="px-5 py-2.5 rounded-full backdrop-blur-md shadow-lg flex items-center gap-2 border border-white/30"
-                    style={{ backgroundColor: `${selectedCategory.color}E6` }}
-                  >
-                    {React.createElement(selectedCategory.icon, {
-                      className: "w-5 h-5 text-white",
-                      strokeWidth: 2.5,
-                    })}
-                    <span className="font-black text-white">{selectedCategory.label}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setSelectedCategory(null)}
-                  className="absolute top-6 left-5 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/30 hover:bg-black/70 transition-colors"
-                >
-                  <X className="w-6 h-6 text-white" strokeWidth={2.5} />
-                </button>
-
-                <div className="absolute top-6 right-5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/30">
-                  <span className="text-white font-bold text-sm">{currentTime}</span>
-                </div>
-              </div>
-
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/95 to-transparent px-5 py-8">
-                
-                <div className="flex items-center justify-center mb-4">
+            <div className="px-5 py-6">
+              {/* Tab Selector */}
+              <div className="mb-6">
+                <div className="flex gap-2 bg-white rounded-xl p-1 shadow-sm border border-gray-100">
                   <button
-                    onClick={handleCapturePhoto}
-                    className="w-20 h-20 rounded-full bg-white border-4 border-gray-300 shadow-2xl active:scale-95 transition-transform relative group"
+                    onClick={() => {
+                      setPhotoMode('camera');
+                      setCameraError(null);
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm transition-all ${
+                      photoMode === 'camera'
+                        ? 'bg-gradient-to-r from-[#5852c4] to-[#7c3aed] text-white shadow-lg'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}
                   >
-                    <div className="absolute inset-2 rounded-full bg-white group-active:bg-gray-200 transition-colors" />
+                    <Camera className="w-5 h-5" strokeWidth={2.5} />
+                    Fotoğraf Çek
+                  </button>
+                  <button
+                    onClick={() => {
+                      setPhotoMode('upload');
+                      if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                        setStream(null);
+                      }
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm transition-all ${
+                      photoMode === 'upload'
+                        ? 'bg-gradient-to-r from-[#5852c4] to-[#7c3aed] text-white shadow-lg'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Upload className="w-5 h-5" strokeWidth={2.5} />
+                    Fotoğraf Yükle
                   </button>
                 </div>
-
-                <p className="text-white/80 text-sm text-center font-semibold">
-                  Fotoğraf çekmek için dokun
-                </p>
               </div>
+
+              {photoMode === 'camera' ? (
+                <div className="relative h-[70vh] bg-black rounded-xl overflow-hidden">
+                  {cameraError ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                      <Camera className="w-16 h-16 text-gray-400 mb-4" strokeWidth={1.5} />
+                      <p className="text-white font-bold mb-2">Kamera Erişimi Gerekli</p>
+                      <p className="text-gray-400 text-sm mb-4">{cameraError}</p>
+                      <button
+                        onClick={requestCameraAccess}
+                        className="px-6 py-3 rounded-lg bg-gradient-to-r from-[#5852c4] to-[#7c3aed] text-white font-bold text-sm hover:shadow-lg transition-all"
+                      >
+                        Tekrar Dene
+                      </button>
+                    </div>
+                  ) : stream ? (
+                    <>
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover"
+                      />
+                      <canvas ref={canvasRef} className="hidden" />
+                      
+                      <div className="absolute inset-0 pointer-events-none">
+                        <div className="w-full h-full grid grid-cols-3 grid-rows-3">
+                          {[...Array(9)].map((_, i) => (
+                            <div key={i} className="border border-white/10" />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="absolute top-6 left-1/2 transform -translate-x-1/2">
+                        <div 
+                          className="px-5 py-2.5 rounded-full backdrop-blur-md shadow-lg flex items-center gap-2 border border-white/30"
+                          style={{ backgroundColor: `${selectedCategory.color}E6` }}
+                        >
+                          {React.createElement(selectedCategory.icon, {
+                            className: "w-5 h-5 text-white",
+                            strokeWidth: 2.5,
+                          })}
+                          <span className="font-black text-white">{selectedCategory.label}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setSelectedCategory(null);
+                          if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                            setStream(null);
+                          }
+                        }}
+                        className="absolute top-6 left-5 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/30 hover:bg-black/70 transition-colors"
+                      >
+                        <X className="w-6 h-6 text-white" strokeWidth={2.5} />
+                      </button>
+
+                      <div className="absolute top-6 right-5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/30">
+                        <span className="text-white font-bold text-sm">{currentTime}</span>
+                      </div>
+
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/95 to-transparent px-5 py-8">
+                        <div className="flex items-center justify-center mb-4">
+                          <button
+                            onClick={handleCapturePhoto}
+                            className="w-20 h-20 rounded-full bg-white border-4 border-gray-300 shadow-2xl active:scale-95 transition-transform relative group"
+                          >
+                            <div className="absolute inset-2 rounded-full bg-white group-active:bg-gray-200 transition-colors" />
+                          </button>
+                        </div>
+                        <p className="text-white/80 text-sm text-center font-semibold">
+                          Fotoğraf çekmek için dokun
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-16 h-16 rounded-full bg-[#5852c4]/20 flex items-center justify-center mx-auto mb-4">
+                          <Camera className="w-8 h-8 text-[#5852c4]" strokeWidth={2.5} />
+                        </div>
+                        <p className="text-white font-bold mb-2">Kamera Hazırlanıyor...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                      <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" strokeWidth={1.5} />
+                      <p className="font-bold text-[#19142e] mb-2">Fotoğraf Yükle</p>
+                      <p className="text-sm text-gray-500 mb-4">veya</p>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-6 py-3 rounded-lg bg-gradient-to-r from-[#5852c4] to-[#7c3aed] text-white font-bold text-sm hover:shadow-lg transition-all"
+                      >
+                        Dosya Seç
+                      </button>
+                      <p className="text-xs text-gray-400 mt-3">
+                        JPG, PNG desteklenir (Max 10MB)
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedCategory(null);
+                    }}
+                    className="w-full py-3 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition-colors"
+                  >
+                    Geri Dön
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="px-5 py-6">
@@ -308,7 +576,7 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
                 className={`
                   w-full py-4 rounded-xl font-black text-lg transition-all shadow-lg
                   ${selectedStatus 
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-red-500/30 active:scale-98' 
+                    ? 'bg-gradient-to-r from-[#5852c4] to-[#7c3aed] hover:from-[#6c5ce7] hover:to-[#8b5cf6] text-white shadow-[#5852c4]/30 active:scale-98' 
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }
                 `}
@@ -343,7 +611,7 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center mx-auto mb-4 shadow-lg"
+                  className="w-20 h-20 rounded-full bg-gradient-to-r from-[#5852c4] to-[#7c3aed] flex items-center justify-center mx-auto mb-4 shadow-lg"
                 >
                   <Camera className="w-10 h-10 text-white" strokeWidth={3} />
                 </motion.div>
@@ -355,7 +623,7 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
                   Rapor başarıyla paylaşıldı!
                 </p>
 
-                <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-red-500 to-red-600 mb-4 shadow-lg">
+                <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#5852c4] to-[#7c3aed] mb-4 shadow-lg">
                   <span className="text-2xl">🪙</span>
                   <span className="text-white font-black text-xl">+15 Coin</span>
                 </div>

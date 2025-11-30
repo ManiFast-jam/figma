@@ -14,10 +14,11 @@ import { DailyPollScreen } from '../components/screens/DailyPollScreen';
 import { WheelOfFortuneScreen } from '../components/screens/WheelOfFortuneScreen';
 import TopicDetailScreen from '../components/screens/TopicDetailScreen';
 import { CreatePostModal } from '../components/social/CreatePostModal';
-import { GameCenterOverlay } from '../components/overlays/GameCenterOverlay';
+import { GameCenterScreen } from '../components/screens/GameCenterScreen';
 import { LoginScreen } from '../components/auth/LoginScreen';
 import { MOCK_COMMENTS, convertCommentToPost } from '../data/mockComments';
 import { ThemeProvider } from '../contexts/ThemeContext';
+import { CoinProvider } from '../contexts/CoinContext';
 import { SearchOverlay } from '../components/search/SearchOverlay';
 
 interface PostStackItem {
@@ -29,7 +30,7 @@ function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Login olmadan başla
   const [activeTab, setActiveTab] = useState('discover'); // Keşfet sekmesinde başla
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
-  const [isGameCenterOpen, setIsGameCenterOpen] = useState(false);
+  const [showGameCenter, setShowGameCenter] = useState(false);
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   
@@ -83,6 +84,35 @@ function AppContent() {
     }} />;
   }
 
+  // Show Game Center Screen
+  if (showGameCenter) {
+    return (
+      <>
+        <GameCenterScreen
+          onBack={() => setShowGameCenter(false)}
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setShowGameCenter(false);
+          }}
+          onGameSelect={(gameId) => {
+            setActiveGame(gameId);
+            setShowGameCenter(false);
+          }}
+          onWalletOpen={() => {}}
+        />
+        <BottomNavigation 
+          activeTab={activeTab} 
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setShowGameCenter(false);
+          }} 
+          onFabClick={() => setShowGameCenter(true)}
+        />
+      </>
+    );
+  }
+
   // Show Game Screen if active
   if (activeGame === 'exam-hero') {
     return (
@@ -94,7 +124,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }}
-          onGameCenterClick={() => setIsGameCenterOpen(true)}
+          onGameCenterClick={() => setShowGameCenter(true)}
         />
         <BottomNavigation 
           activeTab={activeTab} 
@@ -102,7 +132,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }} 
-          onFabClick={() => setIsGameCenterOpen(true)}
+          onFabClick={() => setShowGameCenter(true)}
         />
       </>
     );
@@ -117,7 +147,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }}
-          onGameCenterClick={() => setIsGameCenterOpen(true)}
+          onGameCenterClick={() => setShowGameCenter(true)}
         />
         <BottomNavigation 
           activeTab={activeTab} 
@@ -125,7 +155,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }} 
-          onFabClick={() => setIsGameCenterOpen(true)}
+          onFabClick={() => setShowGameCenter(true)}
         />
       </>
     );
@@ -140,7 +170,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }}
-          onGameCenterClick={() => setIsGameCenterOpen(true)}
+          onGameCenterClick={() => setShowGameCenter(true)}
         />
         <BottomNavigation 
           activeTab={activeTab} 
@@ -148,7 +178,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }} 
-          onFabClick={() => setIsGameCenterOpen(true)}
+          onFabClick={() => setShowGameCenter(true)}
         />
       </>
     );
@@ -163,7 +193,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }}
-          onGameCenterClick={() => setIsGameCenterOpen(true)}
+          onGameCenterClick={() => setShowGameCenter(true)}
         />
         <BottomNavigation 
           activeTab={activeTab} 
@@ -171,7 +201,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }} 
-          onFabClick={() => setIsGameCenterOpen(true)}
+          onFabClick={() => setShowGameCenter(true)}
         />
       </>
     );
@@ -186,7 +216,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }}
-          onGameCenterClick={() => setIsGameCenterOpen(true)}
+          onGameCenterClick={() => setShowGameCenter(true)}
         />
         <BottomNavigation 
           activeTab={activeTab} 
@@ -194,7 +224,7 @@ function AppContent() {
             setActiveTab(tab);
             setActiveGame(null);
           }} 
-          onFabClick={() => setIsGameCenterOpen(true)}
+          onFabClick={() => setShowGameCenter(true)}
         />
       </>
     );
@@ -211,7 +241,7 @@ function AppContent() {
             setActiveTab(tab);
             setShowTopicDetail(false);
           }}
-          onGameCenterClick={() => setIsGameCenterOpen(true)}
+          onGameCenterClick={() => setShowGameCenter(true)}
         />
         <BottomNavigation 
           activeTab={activeTab} 
@@ -219,7 +249,7 @@ function AppContent() {
             setActiveTab(tab);
             setShowTopicDetail(false);
           }} 
-          onFabClick={() => setIsGameCenterOpen(true)}
+          onFabClick={() => setShowGameCenter(true)}
         />
       </>
     );
@@ -251,7 +281,7 @@ function AppContent() {
               setShowTopicDetail(false);
               setActiveTab(tab);
             }}
-            onGameCenterClick={() => setIsGameCenterOpen(true)}
+            onGameCenterClick={() => setShowGameCenter(true)}
           />
           <BottomNavigation 
             activeTab={activeTab} 
@@ -262,7 +292,7 @@ function AppContent() {
               setShowTopicDetail(false);
               setActiveTab(tab);
             }} 
-            onFabClick={() => setIsGameCenterOpen(true)}
+            onFabClick={() => setShowGameCenter(true)}
           />
         </>
       ) : selectedAnnouncement ? (
@@ -278,7 +308,7 @@ function AppContent() {
               setShowTopicDetail(false);
               setActiveTab(tab);
             }}
-            onGameCenterClick={() => setIsGameCenterOpen(true)}
+            onGameCenterClick={() => setShowGameCenter(true)}
           />
           <BottomNavigation 
             activeTab={activeTab} 
@@ -289,7 +319,7 @@ function AppContent() {
               setShowTopicDetail(false);
               setActiveTab(tab);
             }} 
-            onFabClick={() => setIsGameCenterOpen(true)}
+            onFabClick={() => setShowGameCenter(true)}
           />
         </>
       ) : postStack.length > 0 ? (
@@ -314,7 +344,7 @@ function AppContent() {
               setShowTopicDetail(false);
               setActiveTab(tab);
             }}
-            onGameCenterClick={() => setIsGameCenterOpen(true)}
+            onGameCenterClick={() => setShowGameCenter(true)}
           />
           <BottomNavigation 
             activeTab={activeTab} 
@@ -325,7 +355,7 @@ function AppContent() {
               setShowTopicDetail(false);
               setActiveTab(tab);
             }} 
-            onFabClick={() => setIsGameCenterOpen(true)}
+            onFabClick={() => setShowGameCenter(true)}
           />
         </>
       ) : (
@@ -340,7 +370,7 @@ function AppContent() {
                 setShowTopicDetail(false);
                 setActiveTab(tab);
               }}
-              onGameCenterClick={() => setIsGameCenterOpen(true)}
+              onGameCenterClick={() => setShowGameCenter(true)}
               onGameSelect={(gameId) => setActiveGame(gameId)}
               onAnnouncementClick={(announcement) => setSelectedAnnouncement(announcement)}
               onTopicClick={() => setShowTopicDetail(true)}
@@ -376,7 +406,7 @@ function AppContent() {
                 setShowTopicDetail(false);
                 setActiveTab(tab);
               }}
-              onGameCenterClick={() => setIsGameCenterOpen(true)}
+              onGameCenterClick={() => setShowGameCenter(true)}
               onGameSelect={(gameId) => setActiveGame(gameId)}
               onLogout={() => setIsAuthenticated(false)}
             />
@@ -407,7 +437,7 @@ function AppContent() {
                 if (!isAuthenticated) {
                   setShowLoginModal(true);
                 } else {
-                  setIsGameCenterOpen(true);
+                  setShowGameCenter(true);
                 }
               }}
               onAnnouncementClick={(announcement) => {
@@ -430,7 +460,7 @@ function AppContent() {
                 setShowTopicDetail(false);
                 setActiveTab(tab);
               }}
-              onGameCenterClick={() => setIsGameCenterOpen(true)}
+              onGameCenterClick={() => setShowGameCenter(true)}
             />
           )}
           
@@ -442,7 +472,7 @@ function AppContent() {
                  setActiveTab(tab);
                  setPostStack([]);
                }}
-               onGameCenterClick={() => setIsGameCenterOpen(true)}
+               onGameCenterClick={() => setShowGameCenter(true)}
                onGameSelect={(gameId) => setActiveGame(gameId)}
                onAnnouncementClick={(announcement) => setSelectedAnnouncement(announcement)}
                onTopicClick={() => setShowTopicDetail(true)}
@@ -482,7 +512,7 @@ function AppContent() {
               if (!isAuthenticated) {
                 setShowLoginModal(true);
               } else {
-                setIsGameCenterOpen(true);
+                setShowGameCenter(true);
               }
             }}
           />
@@ -494,11 +524,6 @@ function AppContent() {
         onClose={() => setIsCreatePostOpen(false)} 
       />
 
-      <GameCenterOverlay
-        isOpen={isGameCenterOpen}
-        onClose={() => setIsGameCenterOpen(false)}
-        onGameSelect={(gameId) => setActiveGame(gameId)}
-      />
 
       {/* Global Search Overlay */}
       <SearchOverlay
@@ -519,7 +544,9 @@ function AppContent() {
 export default function Home() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <CoinProvider initialCoins={6240}>
+        <AppContent />
+      </CoinProvider>
     </ThemeProvider>
   );
 }

@@ -18,6 +18,7 @@ import { GameCenterOverlay } from './components/overlays/GameCenterOverlay';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { MOCK_COMMENTS, convertCommentToPost } from './data/mockComments';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { CoinProvider } from './contexts/CoinContext';
 
 interface PostStackItem {
   post: any;
@@ -428,7 +429,9 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <CoinProvider initialCoins={6240}>
+        <AppContent />
+      </CoinProvider>
     </ThemeProvider>
   );
 }

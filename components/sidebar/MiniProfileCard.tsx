@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Users, TrendingUp, Compass } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useCoins } from '../../contexts/CoinContext';
 
 interface MiniProfileCardProps {
   onProfileClick?: () => void;
@@ -34,10 +35,15 @@ export const MiniProfileCard = ({
   followers = 342,
   contributions = 89,
   role = 'Gezgin',
-  coins = 6240,
+  coins: propCoins,
   roleMultiplier
 }: MiniProfileCardProps) => {
   const { isDarkMode } = useTheme();
+  const { coins: contextCoins, coinAnimationTrigger } = useCoins();
+  const [isAnimating, setIsAnimating] = React.useState(false);
+  
+  // Use context coins if available, otherwise use prop
+  const coins = contextCoins || propCoins || 6240;
   
   const roleData = getRoleData(coins);
   const currentRole = role || roleData.title;
@@ -47,6 +53,15 @@ export const MiniProfileCard = ({
   const progress = roleData.nextLimit 
     ? Math.min(100, Math.max(0, ((coins - roleData.minCoins) / (roleData.nextLimit - roleData.minCoins)) * 100))
     : 100;
+
+  // Trigger animation when coins change
+  useEffect(() => {
+    if (coinAnimationTrigger > 0) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => setIsAnimating(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [coinAnimationTrigger]);
   
   return (
     <div className={`rounded-[10px] p-3 shadow-[0_2px_12px_rgba(25,20,46,0.08)] hover:shadow-[0_4px_20px_rgba(25,20,46,0.12)] transition-all ${
@@ -84,10 +99,14 @@ export const MiniProfileCard = ({
       </div>
 
       {/* Role Badge - Above Button */}
-      <div className={`mb-3 rounded-[10px] p-3 border-2 ${
+      <div className={`mb-3 rounded-[10px] p-3 border-2 transition-all duration-500 ${
         isDarkMode 
           ? 'bg-white border-[#5852c4]' 
           : 'bg-white border-[#5852c4]/30'
+      } ${
+        isAnimating 
+          ? 'border-[#5852c4] shadow-[0_0_20px_rgba(88,82,196,0.6)] ring-2 ring-[#5852c4]/50' 
+          : ''
       }`}>
         {/* Header: Icon, Title, Multiplier */}
         <div className="flex items-center justify-between mb-2">
@@ -104,10 +123,12 @@ export const MiniProfileCard = ({
           </div>
         </div>
         
-        {/* Progress Bar */}
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
+        {/* Progress Bar Container with Animation */}
+        <div className={`w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2 transition-all duration-500 ${
+          isAnimating ? 'ring-2 ring-[#5852c4]/50' : ''
+        }`}>
           <div 
-            className="h-full bg-gradient-to-r from-[#5852c4] via-[#7c3aed] to-[#06b6d4] rounded-full transition-all"
+            className="h-full bg-gradient-to-r from-[#5852c4] via-[#7c3aed] to-[#06b6d4] rounded-full transition-all duration-700 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
