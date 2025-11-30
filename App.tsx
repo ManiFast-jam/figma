@@ -23,6 +23,7 @@ import { CoinProvider } from './contexts/CoinContext';
 interface PostStackItem {
   post: any;
   comments: any[];
+  highlightCommentId?: string;
 }
 
 function AppContent() {
@@ -261,6 +262,7 @@ function AppContent() {
               setPostStack([]);
             }}
             onGameCenterClick={() => setIsGameCenterOpen(true)}
+            highlightCommentId={postStack[postStack.length - 1].highlightCommentId}
           />
           <BottomNavigation 
             activeTab={activeTab} 
@@ -358,6 +360,26 @@ function AppContent() {
                 setPostStack([]);
               }}
               onGameCenterClick={() => setIsGameCenterOpen(true)}
+              onPostClick={(post, commentId) => {
+                const comments = MOCK_COMMENTS[post.id] || [];
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const postWithFullDate = {
+                  ...post,
+                  fullDate: `${hours}:${minutes} • ${now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}`,
+                  likes: post.upvotes,
+                  comments: comments.length,
+                  content: post.content,
+                  category: post.badge
+                };
+                setPostStack([{ post: postWithFullDate, comments, highlightCommentId: commentId }]);
+              }}
+              onProfileClick={(userId) => {
+                // Navigate to profile tab - in a real app, you'd pass the userId to ProfileScreen
+                setActiveTab('profile');
+                setPostStack([]);
+              }}
             />
           )}
           
