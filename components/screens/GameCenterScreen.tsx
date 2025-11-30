@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { GlobalHeader } from '../layout/GlobalHeader';
 import { PageLayout } from '../layout/PageLayout';
 import { WalletModal } from '../wallet/WalletModal';
+import { CoinBlaster } from '../games/CoinBlaster';
 
 interface GameCenterScreenProps {
   onBack?: () => void;
@@ -461,35 +462,10 @@ export const GameCenterScreen = ({
 
               {/* Coin Blaster Game Section */}
               <div className="px-4 lg:px-0">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`rounded-xl overflow-hidden shadow-lg ${
-                    isDarkMode ? 'bg-[#1a1a2e]' : 'bg-white'
-                  }`}
-                >
-                  {/* Game Container */}
-                  <div className="relative w-full" style={{ height: '400px' }}>
-                    {/* Three.js Canvas will be placed here */}
-                    <div id="coin-blaster-canvas" className="w-full h-full" />
-                    
-                    {/* Overlay Content */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
-                      <h2 className={`text-3xl font-extrabold mb-4 ${isDarkMode ? 'text-white' : 'text-[#19142e]'}`}>
-                        Coin Blaster
-                      </h2>
-                      <button
-                        onClick={() => {
-                          console.log('🎮 Coin Blaster oyunu başlatılıyor...');
-                          toast.info('Coin Blaster oyunu yakında!');
-                        }}
-                        className="px-8 py-3 bg-gradient-to-r from-[#5852c4] to-[#7c3aed] hover:from-[#6c5ce7] hover:to-[#8b5cf6] text-white font-bold rounded-lg transition-all shadow-lg shadow-[#5852c4]/30 hover:shadow-xl hover:shadow-[#5852c4]/40"
-                      >
-                        Oyna
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
+                <h2 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-[#19142e]'}`}>
+                  🎯 Bonus Oyun
+                </h2>
+                <CoinBlaster />
               </div>
             </div>
           </PageLayout>
