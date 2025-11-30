@@ -7,9 +7,17 @@ interface WikiEntry {
   id: string;
   title: string;
   category: string;
+  categoryId?: string;
   data: {
-    fields: Array<{ key: string; label: string; value: string }>;
+    type?: 'academic' | 'venue' | 'housing' | 'career' | 'general';
+    fields: Array<{ icon?: React.ComponentType<any>; key: string; label: string; value: string; editable?: boolean }>;
   };
+  lastEditedBy?: string;
+  lastEditedAt?: string;
+  version?: number;
+  upvotes?: number;
+  downvotes?: number;
+  isOwnEntry?: boolean;
 }
 
 interface CreateWikiModalProps {
@@ -157,11 +165,19 @@ export const CreateWikiModal = ({ isOpen, onClose, editEntry = null, onSave }: C
       id: editEntry?.id || `wiki-${Date.now()}`,
       title,
       category: WIKI_CATEGORIES.find(c => c.id === selectedCategory)?.label || 'Topluluk Onaylı',
+      categoryId: selectedCategory,
       data: {
+        type: selectedCategory === 'topluluk-onayli' ? 'venue' as const :
+              selectedCategory === 'akademik-destek' ? 'academic' as const :
+              selectedCategory === 'barinma-yasam' ? 'housing' as const :
+              selectedCategory === 'kariyer-gelisim' ? 'career' as const :
+              'general' as const,
         fields: currentFields.map(field => ({
+          icon: field.icon,
           key: field.key,
           label: field.label,
-          value: formData[field.key] || ''
+          value: formData[field.key] || '',
+          editable: true
         }))
       }
     };

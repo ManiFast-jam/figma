@@ -344,6 +344,9 @@ function AppContent() {
               setActiveTab(tab);
             }}
             onGameCenterClick={() => setShowGameCenter(true)}
+            onEntryUpdate={(updatedEntry) => {
+              setSelectedWikiEntry(updatedEntry);
+            }}
           />
           <BottomNavigation 
             activeTab={activeTab} 
@@ -420,7 +423,7 @@ function AppContent() {
               setActiveTab(tab);
             }}
             onGameCenterClick={() => setShowGameCenter(true)}
-            onSocialResponsibilityClick={(project) => {
+            onProjectClick={(project) => {
               setShowSocialResponsibilityList(false);
               setSelectedSocialResponsibility(project);
             }}

@@ -10,6 +10,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { PostCard } from '../social/PostCard';
 import { WikiEntryCard, WikiEmptyCard } from '../wiki/WikiEntryCard';
 import { CreateWikiModal } from '../wiki/CreateWikiModal';
+import { WikiHistoryModal } from '../wiki/WikiHistoryModal';
 import { canCreateWiki, getUserLevelName } from '../../utils/userLevel';
 import { toast } from 'sonner';
 
@@ -394,6 +395,7 @@ const FEED_POSTS = [
   {
     id: '2',
     title: 'En İyi Etli Ekmek Nerede Yenir?',
+    category: 'yeme-icme',
     user: 'Ayşe Y.',
     role: 'Gezgin',
     badge: 'Yeme-İçme',
@@ -559,7 +561,38 @@ export const FeedScreen = ({
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
   const [isCreateWikiOpen, setIsCreateWikiOpen] = useState(false);
+  const [editingWikiEntry, setEditingWikiEntry] = useState<any>(null);
   const [feedTab, setFeedTab] = useState<'feed' | 'wiki'>('feed');
+  const [selectedWikiForHistory, setSelectedWikiForHistory] = useState<any>(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  
+  // State for posts and wiki entries
+  const [feedPosts, setFeedPosts] = useState(FEED_POSTS);
+  const [wikiEntries, setWikiEntries] = useState(WIKI_ENTRIES);
+  
+  // State for wiki history (version history for each entry)
+  const [wikiHistory, setWikiHistory] = useState<Record<string, Array<{
+    version: number;
+    editedBy: string;
+    editedAt: string;
+    changes: string;
+    isCurrent?: boolean;
+  }>>>(() => {
+    // Initialize with mock history for existing entries
+    const initialHistory: Record<string, Array<any>> = {};
+    WIKI_ENTRIES.forEach(entry => {
+      initialHistory[entry.id] = [
+        {
+          version: entry.version || 1,
+          editedBy: entry.lastEditedBy,
+          editedAt: entry.lastEditedAt,
+          changes: 'İlk oluşturuldu',
+          isCurrent: true
+        }
+      ];
+    });
+    return initialHistory;
+  });
   
   // Mock user coins - in real app, this would come from user context/state
   const userCoins = 6240; // Level 3 (Gezgin)
@@ -573,30 +606,126 @@ export const FeedScreen = ({
     setIsCreateWikiOpen(true);
   };
   
+  // Handle post creation/update
+  const handlePostSave = (newPost: { id?: string; title: string; content: string; category: string; badge: string }) => {
+    if (newPost.id) {
+      // Edit mode
+      setFeedPosts(prev => prev.map(post => 
+        post.id === newPost.id 
+          ? { ...post, title: newPost.title, content: newPost.content, category: newPost.category, badge: newPost.badge }
+          : post
+      ));
+      toast.success('Post başarıyla güncellendi!');
+    } else {
+      // Create mode
+      const post = {
+        id: `post-${Date.now()}`,
+        title: newPost.title,
+        category: newPost.category,
+        user: 'Sen', // Current user
+        role: getUserLevelName(userCoins),
+        badge: newPost.badge,
+        content: newPost.content,
+        upvotes: 0,
+        comments: 0,
+        time: 'Az önce',
+        fullDate: new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })
+      };
+      
+      setFeedPosts(prev => [post, ...prev]);
+      toast.success('Post başarıyla oluşturuldu!');
+    }
+  };
+
+  // Handle wiki entry creation/update
+  const handleWikiSave = (newEntry: any) => {
+    if (newEntry.id && wikiEntries.find(e => e.id === newEntry.id)) {
+      // Edit mode - add to history
+      const oldEntry = wikiEntries.find(e => e.id === newEntry.id);
+      const newVersion = (oldEntry?.version || 0) + 1;
+      
+      const updatedEntry = {
+        ...newEntry,
+        lastEditedBy: 'Sen',
+        lastEditedAt: 'Az önce',
+        version: newVersion
+      };
+      
+      // Update entry
+      setWikiEntries(prev => prev.map(entry => 
+        entry.id === newEntry.id ? updatedEntry : entry
+      ));
+      
+      // Add to history
+      setWikiHistory(prev => {
+        const entryHistory = prev[newEntry.id] || [];
+        // Mark previous version as not current
+        const updatedHistory = entryHistory.map(v => ({ ...v, isCurrent: false }));
+        // Add new version
+        updatedHistory.push({
+          version: newVersion,
+          editedBy: 'Sen',
+          editedAt: 'Az önce',
+          changes: 'İçerik güncellendi',
+          isCurrent: true
+        });
+        return {
+          ...prev,
+          [newEntry.id]: updatedHistory
+        };
+      });
+      
+      toast.success('Wiki entry başarıyla güncellendi!');
+    } else {
+      // Create mode - add missing fields
+      const completeEntry = {
+        ...newEntry,
+        categoryId: newEntry.categoryId || 'topluluk-onayli',
+        lastEditedBy: 'Sen',
+        lastEditedAt: 'Az önce',
+        version: 1,
+        upvotes: 0,
+        downvotes: 0,
+        isOwnEntry: true
+      };
+      
+      setWikiEntries(prev => [completeEntry, ...prev]);
+      
+      // Initialize history for new entry
+      setWikiHistory(prev => ({
+        ...prev,
+        [completeEntry.id]: [{
+          version: 1,
+          editedBy: 'Sen',
+          editedAt: 'Az önce',
+          changes: 'İlk oluşturuldu',
+          isCurrent: true
+        }]
+      }));
+      
+      toast.success('Wiki entry başarıyla oluşturuldu!');
+    }
+  };
+
   // Filter posts and wiki entries based on search
   const getFilteredPosts = () => {
-    if (!searchQuery && !searchCategory) return FEED_POSTS;
+    if (!searchQuery && !searchCategory) return feedPosts;
     
-    return FEED_POSTS.filter(post => {
-      // Category filter
+    return feedPosts.filter(post => {
+      // Category filter - post.category directly matches search category IDs
       if (searchCategory) {
-        const categoryMap: Record<string, string> = {
-          'akademik': 'Akademik',
-          'sosyal': 'Sosyal',
-          'yeme-icme': 'Yeme-İçme',
-          'barinma': 'Barınma',
-          'ikinci-el': 'İkinci El',
-        };
-        if (post.category !== categoryMap[searchCategory]) {
+        // Post categories are: 'akademik', 'sosyal', 'yeme-icme', 'barinma', 'ikinci-el'
+        if (post.category !== searchCategory) {
           return false;
         }
       }
       
-      // Text search in title
+      // Text search in title and content
       if (searchQuery) {
         const queryLower = searchQuery.toLowerCase();
-        return post.title.toLowerCase().includes(queryLower) || 
-               post.content.toLowerCase().includes(queryLower);
+        const titleMatch = post.title?.toLowerCase().includes(queryLower) || false;
+        const contentMatch = post.content?.toLowerCase().includes(queryLower) || false;
+        return titleMatch || contentMatch;
       }
       
       return true;
@@ -604,27 +733,53 @@ export const FeedScreen = ({
   };
   
   const getFilteredWikiEntries = () => {
-    if (!searchQuery && !searchCategory) return WIKI_ENTRIES;
+    if (!searchQuery && !searchCategory) return wikiEntries;
     
-    return WIKI_ENTRIES.filter(entry => {
-      // Category filter
+    return wikiEntries.filter(entry => {
+      // Category filter - use categoryId field for matching
       if (searchCategory) {
-        const categoryMap: Record<string, string> = {
-          'akademik': 'Akademik Destek',
-          'sosyal': 'Sosyal',
-          'yeme-icme': 'Yeme-İçme',
-          'barinma': 'Barınma',
-          'ikinci-el': 'İkinci El',
+        // Map search category IDs to wiki entry categoryId values
+        const categoryIdMap: Record<string, string[]> = {
+          'akademik': ['akademik-destek'],
+          'sosyal': ['sosyal-yasam'],
+          'yeme-icme': ['yeme-icme'], // Check if this categoryId exists in wiki entries
+          'barinma': ['barinma-yasam'],
+          'ikinci-el': ['ikinci-el'], // Check if this categoryId exists in wiki entries
         };
-        if (entry.category !== categoryMap[searchCategory]) {
-          return false;
+        
+        const matchingCategoryIds = categoryIdMap[searchCategory];
+        if (matchingCategoryIds && entry.categoryId) {
+          if (!matchingCategoryIds.includes(entry.categoryId)) {
+            return false;
+          }
+        } else if (matchingCategoryIds) {
+          // Fallback: also check category name if categoryId doesn't exist
+          const categoryNameMap: Record<string, string[]> = {
+            'akademik': ['Akademik Destek'],
+            'sosyal': ['Sosyal Yaşam'],
+            'yeme-icme': ['Yeme-İçme'],
+            'barinma': ['Barınma & Yaşam'],
+            'ikinci-el': ['İkinci El'],
+          };
+          const matchingCategoryNames = categoryNameMap[searchCategory];
+          if (matchingCategoryNames && !matchingCategoryNames.includes(entry.category)) {
+            return false;
+          }
         }
       }
       
-      // Text search in title
+      // Text search in title and description
       if (searchQuery) {
         const queryLower = searchQuery.toLowerCase();
-        return entry.title.toLowerCase().includes(queryLower);
+        const titleMatch = entry.title?.toLowerCase().includes(queryLower) || false;
+        
+        // Also search in description field if it exists
+        const descriptionField = entry.data?.fields?.find(f => f.key === 'description' || f.label === 'Açıklama');
+        const descriptionMatch = descriptionField?.value 
+          ? String(descriptionField.value).toLowerCase().includes(queryLower)
+          : false;
+        
+        return titleMatch || descriptionMatch;
       }
       
       return true;
@@ -805,8 +960,21 @@ export const FeedScreen = ({
                       version={entry.version}
                       index={index}
                       totalEntries={filteredWikiEntries.length}
-                      onHistoryClick={() => console.log('📜 History:', entry.title)}
-                      onEditClick={() => console.log('✏️ Edit:', entry.title)}
+                      onHistoryClick={() => {
+                        setSelectedWikiForHistory(entry);
+                        setIsHistoryModalOpen(true);
+                      }}
+                      onEditClick={() => {
+                        // Check if user can edit (level 3, 4, or 5)
+                        const userLevel = Math.floor(userCoins / 2000);
+                        if (userLevel >= 3) {
+                          setEditingWikiEntry(entry);
+                          setIsCreateWikiOpen(true);
+                        } else {
+                          const levelName = getUserLevelName(userCoins);
+                          toast.error(`Wiki düzenlemek için en az "Gezgin" seviyesinde olmanız gerekiyor. Şu anki seviyeniz: ${levelName}`);
+                        }
+                      }}
                       onClick={() => onWikiEntryClick?.(entry)}
                     />
                   ))}
@@ -834,12 +1002,35 @@ export const FeedScreen = ({
       <CreatePostModal 
         isOpen={isCreatePostOpen}
         onClose={() => setIsCreatePostOpen(false)}
+        onSave={handlePostSave}
       />
 
       <CreateWikiModal 
         isOpen={isCreateWikiOpen}
-        onClose={() => setIsCreateWikiOpen(false)}
+        onClose={() => {
+          setIsCreateWikiOpen(false);
+          setEditingWikiEntry(null);
+        }}
+        editEntry={editingWikiEntry}
+        onSave={handleWikiSave}
       />
+
+      {/* Wiki History Modal */}
+      {selectedWikiForHistory && (
+        <WikiHistoryModal
+          isOpen={isHistoryModalOpen}
+          onClose={() => {
+            setIsHistoryModalOpen(false);
+            setSelectedWikiForHistory(null);
+          }}
+          wikiTitle={selectedWikiForHistory.title}
+          versions={wikiHistory[selectedWikiForHistory.id] || []}
+          onRestoreVersion={(version) => {
+            // Restore version logic can be added here if needed
+            console.log('Restore version:', version);
+          }}
+        />
+      )}
 
       {/* X-Style Floating Action Button (FAB) - Changes based on tab */}
       <button

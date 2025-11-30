@@ -161,11 +161,22 @@ export const SearchOverlay = ({ isOpen, onClose, trendingTopics = [], onSearch }
 
   const handleCategoryClick = (categoryId: string) => {
     if (selectedCategory === categoryId) {
+      // Deselect category
       setSelectedCategory(null);
       setQuery('');
+      // Clear search when category is deselected
+      if (onSearch) {
+        onSearch('', null);
+      }
     } else {
+      // Select category and auto-search
       setSelectedCategory(categoryId);
       setQuery(''); // Clear query when category is selected
+      // Auto-search with category filter
+      if (onSearch) {
+        onSearch('', categoryId);
+        onClose();
+      }
     }
   };
 
