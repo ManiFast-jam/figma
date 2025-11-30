@@ -63,7 +63,7 @@ const getGameParticipants = (gameId: string) => {
 
 export const GameCenterScreen = ({ 
   onBack, 
-  activeTab = 'home', 
+  activeTab = 'home',
   onTabChange,
   onGameSelect,
   onWalletOpen
@@ -71,6 +71,11 @@ export const GameCenterScreen = ({
   const { isDarkMode } = useTheme();
   const { addCoins, coins, coinAnimationTrigger } = useCoins();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const [selectedSurveyOption, setSelectedSurveyOption] = useState<number | null>(null);
   const [surveyCompleted, setSurveyCompleted] = useState(false);
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);

@@ -63,6 +63,11 @@ export const ExamHeroScreen = ({ onBack, activeTab = 'home', onTabChange, onGame
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
   const [previousCoins, setPreviousCoins] = useState(coins);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   // Form State
   const [selectedUniversity, setSelectedUniversity] = useState<number | null>(null);

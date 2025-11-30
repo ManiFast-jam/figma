@@ -68,6 +68,11 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addCoins } = useCoins();
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const requestCameraAccess = async () => {
     try {
       // Check if we're on HTTPS or localhost

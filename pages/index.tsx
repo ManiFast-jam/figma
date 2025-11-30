@@ -98,6 +98,7 @@ function AppContent() {
           onGameSelect={(gameId) => {
             setActiveGame(gameId);
             setShowGameCenter(false);
+            window.scrollTo(0, 0);
           }}
           onWalletOpen={() => {}}
         />
@@ -118,7 +119,10 @@ function AppContent() {
     return (
       <>
         <ExamHeroScreen 
-          onBack={() => setActiveGame(null)}
+          onBack={() => {
+            setActiveGame(null);
+            setShowGameCenter(true);
+          }}
           activeTab={activeTab}
           onTabChange={(tab) => {
             setActiveTab(tab);
@@ -141,7 +145,10 @@ function AppContent() {
     return (
       <>
         <CampusReporterScreen 
-          onBack={() => setActiveGame(null)}
+          onBack={() => {
+            setActiveGame(null);
+            setShowGameCenter(true);
+          }}
           activeTab={activeTab}
           onTabChange={(tab) => {
             setActiveTab(tab);
@@ -164,7 +171,10 @@ function AppContent() {
     return (
       <>
         <TreasureHuntScreen 
-          onBack={() => setActiveGame(null)}
+          onBack={() => {
+            setActiveGame(null);
+            setShowGameCenter(true);
+          }}
           activeTab={activeTab}
           onTabChange={(tab) => {
             setActiveTab(tab);
@@ -187,7 +197,10 @@ function AppContent() {
     return (
       <>
         <DailyPollScreen 
-          onBack={() => setActiveGame(null)}
+          onBack={() => {
+            setActiveGame(null);
+            setShowGameCenter(true);
+          }}
           activeTab={activeTab}
           onTabChange={(tab) => {
             setActiveTab(tab);
@@ -210,7 +223,10 @@ function AppContent() {
     return (
       <>
         <WheelOfFortuneScreen 
-          onBack={() => setActiveGame(null)}
+          onBack={() => {
+            setActiveGame(null);
+            setShowGameCenter(true);
+          }}
           activeTab={activeTab}
           onTabChange={(tab) => {
             setActiveTab(tab);

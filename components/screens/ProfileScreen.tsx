@@ -742,15 +742,15 @@ export const ProfileScreen = ({
             </div>
 
             {/* Sağ Yarı: Genç Kültür Kart (%30) */}
-            <div className="w-full lg:w-[30%] flex justify-end">
+            <div className="w-full lg:w-[40%] flex justify-end">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative"
+                className="relative w-full"
               >
                 <TooltipProvider>
-                  {/* Card Container - Horizontal Card (248x334) */}
-                  <div className="relative w-[334px] h-[248px] ml-auto lg:ml-auto rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(25,20,46,0.25)]">
+                  {/* Card Container - Horizontal Card (Full Width) */}
+                  <div className="relative w-full h-[248px] rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(25,20,46,0.25)]">
         
                     {/* Violet Gradient Background with Depth */}
                     <div className="absolute inset-0 violet-gradient" />

@@ -86,6 +86,11 @@ export const TreasureHuntScreen = ({ onBack, activeTab = 'home', onTabChange, on
   const videoRef = useRef<HTMLVideoElement>(null);
   const { addCoins } = useCoins();
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Simulate distance check (mock geolocation)
   useEffect(() => {
     if (missionStarted) {
