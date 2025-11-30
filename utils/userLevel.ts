@@ -12,6 +12,15 @@ export const getUserLevel = (coins: number): number => {
 };
 
 /**
+ * Kullanıcının post oluşturma yetkisi var mı?
+ * @param coins Kullanıcının toplam coin miktarı
+ * @returns true if level >= 2 (500+ coins)
+ */
+export const canCreatePost = (coins: number): boolean => {
+  return getUserLevel(coins) >= 2;
+};
+
+/**
  * Kullanıcının wiki oluşturma yetkisi var mı?
  * @param coins Kullanıcının toplam coin miktarı
  * @returns true if level >= 3
