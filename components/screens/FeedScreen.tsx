@@ -7,11 +7,12 @@ import { GlobalHeader } from '../layout/GlobalHeader';
 import { PageLayout } from '../layout/PageLayout';
 import { CreatePostModal } from '../social/CreatePostModal';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useCoins } from '../../contexts/CoinContext';
 import { PostCard } from '../social/PostCard';
 import { WikiEntryCard, WikiEmptyCard } from '../wiki/WikiEntryCard';
 import { CreateWikiModal } from '../wiki/CreateWikiModal';
 import { WikiHistoryModal } from '../wiki/WikiHistoryModal';
-import { canCreateWiki, getUserLevelName } from '../../utils/userLevel';
+import { canCreatePost, canCreateWiki, getUserLevelName } from '../../utils/userLevel';
 import { toast } from 'sonner';
 
 const FILTERS = ['Tümü', 'Akademik', 'Yeme-İçme', 'Barınma', 'Sosyal', 'İkinci El'];
@@ -594,9 +595,18 @@ export const FeedScreen = ({
     return initialHistory;
   });
   
-  // Mock user coins - in real app, this would come from user context/state
-  const userCoins = 6240; // Level 3 (Gezgin)
+  // Get user coins from context
+  const { coins: userCoins } = useCoins();
   
+  const handlePostCreateClick = () => {
+    if (!canCreatePost(userCoins)) {
+      const levelName = getUserLevelName(userCoins);
+      toast.error(`Post oluşturmak için en az "Seyyah" seviyesinde olmanız gerekiyor (500+ coin). Şu anki seviyeniz: ${levelName}`);
+      return;
+    }
+    setIsCreatePostOpen(true);
+  };
+
   const handleWikiCreateClick = () => {
     if (!canCreateWiki(userCoins)) {
       const levelName = getUserLevelName(userCoins);
@@ -875,12 +885,16 @@ export const FeedScreen = ({
                 }`}>
                   
                   {/* Desktop: Inline Trigger "What's happening?" */}
-                  <div className={`hidden lg:block px-6 py-4 border-b cursor-pointer transition-colors ${
-                    isDarkMode 
-                      ? 'border-slate-700 hover:bg-slate-800/30' 
-                      : 'border-gray-100 hover:bg-gray-50'
+                  <div className={`hidden lg:block px-6 py-4 border-b transition-colors ${
+                    canCreatePost(userCoins)
+                      ? 'cursor-pointer ' + (isDarkMode 
+                        ? 'border-slate-700 hover:bg-slate-800/30' 
+                        : 'border-gray-100 hover:bg-gray-50')
+                      : 'cursor-not-allowed opacity-60 ' + (isDarkMode 
+                        ? 'border-slate-700' 
+                        : 'border-gray-100')
                   }`}
-                    onClick={() => setIsCreatePostOpen(true)}
+                    onClick={handlePostCreateClick}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5852c4] to-[#19142e] flex items-center justify-center text-white font-bold">
@@ -1036,15 +1050,19 @@ export const FeedScreen = ({
       <button
         onClick={() => {
           if (feedTab === 'feed') {
-            setIsCreatePostOpen(true);
+            handlePostCreateClick();
           } else {
             handleWikiCreateClick();
           }
         }}
         className={`fixed right-5 bottom-[110px] w-14 h-14 rounded-full shadow-[0_4px_12px_rgba(88,82,196,0.4)] transition-all duration-200 active:scale-95 z-40 flex items-center justify-center lg:hidden ${
           feedTab === 'feed' 
-            ? 'bg-[#5852c4] hover:bg-[#19142e] hover:shadow-[0_6px_20px_rgba(88,82,196,0.6)]' 
-            : 'bg-[#5852c4] hover:bg-[#4a45b0] hover:shadow-[0_6px_20px_rgba(88,82,196,0.6)]'
+            ? (canCreatePost(userCoins)
+                ? 'bg-[#5852c4] hover:bg-[#19142e] hover:shadow-[0_6px_20px_rgba(88,82,196,0.6)]'
+                : 'bg-gray-400 cursor-not-allowed opacity-60')
+            : (canCreateWiki(userCoins)
+                ? 'bg-[#5852c4] hover:bg-[#4a45b0] hover:shadow-[0_6px_20px_rgba(88,82,196,0.6)]'
+                : 'bg-gray-400 cursor-not-allowed opacity-60')
         }`}
         aria-label={feedTab === 'feed' ? 'Yeni gönderi oluştur' : 'Wiki bilgisi ekle'}
       >
