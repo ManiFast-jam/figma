@@ -23,7 +23,7 @@ export const RightSidebar = ({
   const userCoins = contextCoins || propUserCoins || 6240;
   
   return (
-    <aside className="hidden lg:block w-[30%]">
+    <aside className="hidden lg:block lg:flex-[0_0_30%] lg:max-w-[30%]">
       <div className="sticky top-[80px] space-y-6">
         <MiniProfileCard onProfileClick={onProfileClick} coins={userCoins} />
         <TrendingVertical />

@@ -22,8 +22,8 @@ export const PageLayout = ({
     <div className="max-w-[1200px] mx-auto px-0 lg:px-6">
       <div className="flex gap-6">
         
-        {/* LEFT COLUMN - Main Content */}
-        <main className={`w-full ${showSidebar ? 'lg:w-[70%]' : ''}`}>
+        {/* LEFT COLUMN - Main Content (70%) */}
+        <main className="w-full lg:flex-[0_0_70%] lg:max-w-[70%]">
           {children}
         </main>
 

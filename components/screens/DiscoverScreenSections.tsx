@@ -16,9 +16,9 @@ export const SectionWrapper = ({ title, onViewAll, children }: SectionWrapperPro
   
   return (
     <section>
-      {/* TITLE ROW - Always with padding */}
-      <div className="mb-4 flex items-center justify-between px-5 lg:px-0">
-        <h3 className={`text-2xl font-bold transition-colors ${
+      {/* TITLE ROW - Always with padding on mobile, no padding on desktop when authenticated (PageLayout has padding) */}
+      <div className="mb-5 flex items-center justify-between px-5 lg:px-0">
+        <h3 className={`text-2xl lg:text-[28px] font-bold transition-colors ${
           isDarkMode ? 'text-white' : 'text-[#19142e]'
         }`}>{title}</h3>
         {onViewAll && (
@@ -35,7 +35,7 @@ export const SectionWrapper = ({ title, onViewAll, children }: SectionWrapperPro
         )}
       </div>
       
-      {/* CAROUSEL - Always with padding on mobile, no padding on desktop in PageLayout */}
+      {/* CAROUSEL - Always with padding on mobile, no padding on desktop when authenticated (PageLayout has padding) */}
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none px-5 lg:px-0">
         {children}
       </div>
@@ -59,7 +59,7 @@ export const AnnouncementCard = ({ announcement, onClick }: AnnouncementCardProp
   return (
     <div 
       onClick={onClick}
-      className="snap-center flex-shrink-0 w-[65vw] lg:w-[calc(50%-8px)] group cursor-pointer"
+      className="snap-center flex-shrink-0 w-[320px] lg:w-[450px] group cursor-pointer"
     >
       <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(25,20,46,0.12)] hover:shadow-[0_12px_40px_rgba(25,20,46,0.16)] transition-shadow">
         <ImageWithFallback 
@@ -71,10 +71,10 @@ export const AnnouncementCard = ({ announcement, onClick }: AnnouncementCardProp
         {/* Dark Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         
-        {/* Category Badge - Top Right */}
+        {/* Category Badge - Top Left */}
         {announcement.category && (
-          <div className="absolute top-3 right-3 z-10">
-            <span className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-bold border border-white/30">
+          <div className="absolute top-3 left-3 z-10">
+            <span className="px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm text-[#19142e] text-xs font-bold shadow-md">
               {announcement.category}
             </span>
           </div>
@@ -171,9 +171,11 @@ export const EventCard = ({ event, onClick }: EventCardProps) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         
         {/* Date Badge */}
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur rounded-xl p-3 text-center min-w-[60px] shadow-md">
-          <div className="text-xs font-bold text-[#8279a5] uppercase leading-none mb-1">{event.month}</div>
-          <div className="text-2xl font-black text-[#19142e] leading-none">{event.day}</div>
+        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+          <div className="flex items-center gap-1.5">
+            <div className="text-sm font-black text-[#5852c4] leading-none">{event.day}</div>
+            <div className="text-xs font-bold text-[#19142e] uppercase leading-none">{event.month}</div>
+          </div>
         </div>
         
         {/* Content - Bottom Overlay */}

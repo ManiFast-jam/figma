@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, MoreHorizontal, ThumbsUp, MessageCircle, Share2, Send } from 'lucide-react';
 import { GlobalHeader } from '../layout/GlobalHeader';
 import { PageLayout } from '../layout/PageLayout';
@@ -50,27 +50,9 @@ interface CommentItemProps {
   comment: Comment;
   depth?: number;
   onCommentClick?: (comment: Comment) => void;
-  highlightCommentId?: string;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, depth = 0, onCommentClick, highlightCommentId }) => {
-  const commentRef = useRef<HTMLDivElement>(null);
-  const isHighlighted = highlightCommentId === comment.id;
-
-  useEffect(() => {
-    if (isHighlighted && commentRef.current) {
-      // Scroll to comment after a short delay to ensure it's rendered
-      const scrollTimeout = setTimeout(() => {
-        commentRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        });
-      }, 500);
-      
-      return () => clearTimeout(scrollTimeout);
-    }
-  }, [isHighlighted]);
+const CommentItem: React.FC<CommentItemProps> = ({ comment, depth = 0, onCommentClick }) => {
   const { isDarkMode } = useTheme();
   const hasReplies = comment.replies && comment.replies.length > 0;
   const indentClass = depth > 0 ? 'ml-8' : '';
@@ -83,11 +65,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth = 0, onComment
   };
 
   return (
-    <div ref={commentRef} className={`relative ${indentClass}`}>
+    <div className={`relative ${indentClass}`}>
       <div 
         className={`flex gap-3 pb-5 cursor-pointer transition-colors rounded-lg p-2 -m-2 ${
           isDarkMode ? 'hover:bg-slate-800/50' : 'hover:bg-gray-50/50'
-        } ${isHighlighted ? (isDarkMode ? 'bg-[#5852c4]/30 ring-2 ring-[#5852c4] animate-pulse' : 'bg-[#5852c4]/20 ring-2 ring-[#5852c4] animate-pulse') : ''}`}
+        }`}
         onClick={handleCommentClick}
       >
         {/* Left: Avatar Column with Thread Line */}
@@ -150,7 +132,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth = 0, onComment
         </div>
       </div>
 
-          {/* Recursive Replies */}
+      {/* Recursive Replies */}
       {hasReplies && (
         <div>
           {comment.replies!.map((reply) => (
@@ -159,7 +141,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, depth = 0, onComment
               comment={reply} 
               depth={depth + 1}
               onCommentClick={onCommentClick}
-              highlightCommentId={highlightCommentId}
             />
           ))}
         </div>
@@ -176,7 +157,6 @@ interface PostDetailScreenProps {
   activeTab?: string;
   onTabChange?: (tab: string) => void;
   onGameCenterClick?: () => void;
-  highlightCommentId?: string;
 }
 
 export const PostDetailScreen: React.FC<PostDetailScreenProps> = ({ 
@@ -186,8 +166,7 @@ export const PostDetailScreen: React.FC<PostDetailScreenProps> = ({
   onCommentClick,
   activeTab = 'home',
   onTabChange,
-  onGameCenterClick,
-  highlightCommentId
+  onGameCenterClick
 }) => {
   const { isDarkMode } = useTheme();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
@@ -306,7 +285,6 @@ export const PostDetailScreen: React.FC<PostDetailScreenProps> = ({
                 key={comment.id} 
                 comment={comment}
                 onCommentClick={onCommentClick}
-                highlightCommentId={highlightCommentId}
               />
             ))}
           </div>

@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
-import { Clock, Calendar, Share2, Bookmark, ExternalLink } from 'lucide-react';
+import { Clock, Calendar, MapPin, Share2, Bookmark } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { WalletModal } from '../wallet/WalletModal';
 import { GlobalHeader } from '../layout/GlobalHeader';
 import { PageLayout } from '../layout/PageLayout';
 
-interface AnnouncementDetailScreenProps {
-  announcement: {
+interface EventDetailScreenProps {
+  event: {
     id: number;
     title: string;
+    location: string;
+    day: string;
+    month: string;
     image: string;
     date?: string;
     time?: string;
-    content: string;
-    category?: string;
     description?: string;
-    subtitle?: string;
+    content: string;
   };
   onBack: () => void;
   activeTab?: string;
@@ -24,21 +25,21 @@ interface AnnouncementDetailScreenProps {
   onGameCenterClick?: () => void;
 }
 
-export const AnnouncementDetailScreen = ({ 
-  announcement, 
+export const EventDetailScreen = ({ 
+  event, 
   onBack,
   activeTab = 'home',
   onTabChange,
   onGameCenterClick,
-}: AnnouncementDetailScreenProps) => {
+}: EventDetailScreenProps) => {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: announcement.title,
-        text: announcement.title,
+        title: event.title,
+        text: event.description || event.title,
         url: window.location.href,
       });
     }
@@ -72,51 +73,58 @@ export const AnnouncementDetailScreen = ({
           {/* Hero Image */}
           <div className="relative w-full aspect-[16/9] rounded-[12px] overflow-hidden shadow-[0_8px_32px_rgba(25,20,46,0.12)] mb-6">
             <ImageWithFallback 
-              src={announcement.image}
-              alt={announcement.title}
+              src={event.image}
+              alt={event.title}
               className="w-full h-full object-cover"
             />
             
-            {/* Category Badge (if exists) */}
-            {announcement.category && (
-              <div className="absolute top-4 left-4">
-                <span className="px-4 py-2 rounded-full bg-[#5852c4] text-white text-xs font-bold shadow-lg">
-                  {announcement.category}
-                </span>
+            {/* Date Badge */}
+            <div className="absolute top-4 left-4">
+              <div className="px-4 py-2 rounded-full bg-white/95 backdrop-blur-sm shadow-lg">
+                <div className="flex items-center gap-1.5">
+                  <div className="text-sm font-black text-[#5852c4] leading-none">{event.day}</div>
+                  <div className="text-xs font-bold text-[#19142e] uppercase leading-none">{event.month}</div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Article Card */}
           <article className="bg-white rounded-[12px] shadow-[0_4px_24px_rgba(25,20,46,0.08)] p-6 lg:p-8">
             
-            {/* Meta Info */}
-            <div className="flex items-center gap-4 mb-4 text-sm text-[#8279a5]">
-              {announcement.date && (
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4" strokeWidth={2} />
-                  <span>{announcement.date}</span>
-                </div>
-              )}
-              {announcement.time && (
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" strokeWidth={2} />
-                  <span>{announcement.time}</span>
-                </div>
-              )}
-            </div>
-
             {/* Title */}
             <h1 className="text-3xl lg:text-4xl font-bold text-[#19142e] mb-4 leading-tight">
-              {announcement.title}
+              {event.title}
             </h1>
 
             {/* Description */}
-            {(announcement.description || announcement.subtitle) && (
+            {event.description && (
               <p className="text-lg text-[#8279a5] mb-6 leading-relaxed">
-                {announcement.description || announcement.subtitle}
+                {event.description}
               </p>
             )}
+
+            {/* Meta Info */}
+            <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-[#8279a5]">
+              {event.date && (
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4" strokeWidth={2} />
+                  <span>{event.date}</span>
+                </div>
+              )}
+              {event.time && (
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4" strokeWidth={2} />
+                  <span>{event.time}</span>
+                </div>
+              )}
+              {event.location && (
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4" strokeWidth={2} />
+                  <span>{event.location}</span>
+                </div>
+              )}
+            </div>
 
             {/* Action Buttons */}
             <div className="flex items-center gap-3 pb-6 mb-6 border-b border-slate-100">
@@ -145,48 +153,38 @@ export const AnnouncementDetailScreen = ({
 
             {/* Content */}
             <div className="prose prose-slate max-w-none">
-              <div 
-                className="text-[#19142e] leading-relaxed space-y-4"
-                style={{ 
-                  fontSize: '1.0625rem',
-                  lineHeight: '1.75'
-                }}
-              >
-                {(announcement.content || '').split('\n\n').map((paragraph, index) => {
-                  // Handle bold text with ** markdown
-                  if (paragraph.startsWith('**') && paragraph.endsWith('**')) {
+              {event.content ? (
+                <div 
+                  className="text-[#19142e] leading-relaxed space-y-4"
+                  style={{ 
+                    fontSize: '1.0625rem',
+                    lineHeight: '1.75'
+                  }}
+                >
+                  {event.content.split('\n\n').filter(p => p.trim()).map((paragraph, index) => {
+                    if (paragraph.trim().startsWith('**') && paragraph.trim().endsWith('**')) {
+                      return (
+                        <h3 key={index} className="font-bold text-xl text-[#19142e] mt-6 mb-3">
+                          {paragraph.trim().slice(2, -2)}
+                        </h3>
+                      );
+                    }
+                    
                     return (
-                      <h3 key={index} className="font-bold text-xl text-[#19142e] mt-6 mb-3">
-                        {paragraph.slice(2, -2)}
-                      </h3>
+                      <p key={index} className="mb-4 text-[#19142e]/90">
+                        {paragraph.split(/(\*\*.*?\*\*)/).map((part, i) => {
+                          if (part.startsWith('**') && part.endsWith('**')) {
+                            return <strong key={i} className="font-bold text-[#19142e]">{part.slice(2, -2)}</strong>;
+                          }
+                          return part;
+                        })}
+                      </p>
                     );
-                  }
-                  
-                  // Regular paragraph
-                  return (
-                    <p key={index} className="mb-4 text-[#19142e]/90">
-                      {paragraph.split(/(\*\*.*?\*\*)/).map((part, i) => {
-                        if (part.startsWith('**') && part.endsWith('**')) {
-                          return <strong key={i} className="font-bold text-[#19142e]">{part.slice(2, -2)}</strong>;
-                        }
-                        return part;
-                      })}
-                    </p>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Call to Action (Optional) */}
-            <div className="mt-8 pt-6 border-t border-slate-100">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full lg:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-[10px] bg-[#5852c4] text-white font-bold shadow-lg shadow-[#5852c4]/20 hover:bg-[#6c5ce7] transition-all"
-              >
-                <span>Başvuru Yap</span>
-                <ExternalLink className="w-4 h-4" strokeWidth={2.5} />
-              </motion.button>
+                  })}
+                </div>
+              ) : (
+                <p className="text-[#8279a5] italic">İçerik bulunamadı.</p>
+              )}
             </div>
 
           </article>
@@ -205,3 +203,4 @@ export const AnnouncementDetailScreen = ({
     </div>
   );
 };
+

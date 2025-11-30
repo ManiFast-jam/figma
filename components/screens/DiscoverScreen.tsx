@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Star, MapPin, Calendar, ArrowRight, Filter, Swords, BarChart3, Coins, Camera } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Search, Star, MapPin, Coins } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { WalletModal } from '../wallet/WalletModal';
 import { GlobalHeader } from '../layout/GlobalHeader';
@@ -10,50 +9,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { SectionWrapper, AnnouncementCard, PlaceCard, EventCard, GameCard } from './DiscoverScreenSections';
 const konyaLibraryImg = '/images/c91a95a69feb350643602a59bdd8143dcd2e26c5.png';
 
-const ANNOUNCEMENTS = [
-  {
-    id: 1,
-    title: 'KBB Burs Başvuruları Başladı',
-    subtitle: 'Son başvuru 30 Ekim. Detaylar için tıkla.',
-    image: 'https://images.unsplash.com/photo-1659080925666-16001612bc3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzY2hvbGFyc2hpcCUyMGF3YXJkJTIwbW9uZXklMjBzdHVkZW50c3xlbnwxfHx8fDE3NjQ0MjUyMzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Burs & Fırsat',
-  },
-  {
-    id: 2,
-    title: 'Kampüs Festivali',
-    subtitle: 'Bahar şenlikleri takvimi açıklandı! Hazır mısın?',
-    image: 'https://images.unsplash.com/photo-1724390265310-a4814e561d38?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwY2FtcHVzJTIwZmVzdGl2YWwlMjBjb25jZXJ0fGVufDF8fHx8MTc2NDIwNDg1MXww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Etkinlik',
-  },
-  {
-    id: 3,
-    title: 'Ücretsiz İngilizce Kursu',
-    subtitle: 'Yeni dönem kayıtları başladı!',
-    image: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYW5ndWFnZSUyMGxlYXJuaW5nJTIwY2xhc3Nyb29tJTIwZW5nbGlzaHxlbnwxfHx8fDE3NjQyMDQ4NTR8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Eğitim',
-  },
-  {
-    id: 4,
-    title: 'Yurt Başvuruları Açıldı',
-    subtitle: 'KYK yurt başvuruları için son tarih yaklaşıyor.',
-    image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkb3JtJTIwcm9vbSUyMHN0dWRlbnR8ZW58MXx8fHwxNzY0MjA0ODU0fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Barınma',
-  },
-  {
-    id: 5,
-    title: 'Kariyer Günleri 2024',
-    subtitle: 'Önde gelen şirketlerle tanışma fırsatı!',
-    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZXIlMjBmYWlyJTIwam9iJTIwZXZlbnR8ZW58MXx8fHwxNzY0MjA0ODU1fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Kariyer',
-  },
-  {
-    id: 6,
-    title: 'Tiyatro Gösterisi',
-    subtitle: 'Devlet Tiyatrosu öğrencilere özel indirimli.',
-    image: 'https://images.unsplash.com/photo-1503095396549-807759245b35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0aGVhdHJlJTIwc3RhZ2UlMjBwZXJmb3JtYW5jZXxlbnwxfHx8fDE3NjQyMDQ4NTZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'Kültür',
-  }
-];
+import { ANNOUNCEMENTS } from '../../data/mockAnnouncements';
 
 const POPULAR_PLACES = [
   {
@@ -104,6 +60,54 @@ const POPULAR_PLACES = [
     distance: '2.0 km',
     image: 'https://images.unsplash.com/photo-1541963058-d6c7c5a29a42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaXN0b3JpYyUyMGhpbGwlMjBwYXJrfGVufDF8fHx8MTc2NDIwNDg1OHww&ixlib=rb-4.1.0&q=80&w=1080'
   },
+  {
+    id: 7,
+    name: 'Selçuklu Müzesi',
+    category: 'Müze',
+    rating: 4.8,
+    distance: '1.8 km',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNldW0lMjBpbnRlcmlvciUyMGFydCUyMGV4aGliaXR8ZW58MXx8fHwxNzY0MjA0ODY3fDA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 8,
+    name: 'Konya Bilim Merkezi',
+    category: 'Bilim Merkezi',
+    rating: 4.9,
+    distance: '3.5 km',
+    image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzY2llbmNlJTIwbXVzZXVtJTIwaW50ZXJhY3RpdmUlMjBleGhpYml0fGVufDF8fHx8MTc2NDIwNDg2OHww&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 9,
+    name: 'Şems-i Tebrizi Parkı',
+    category: 'Park',
+    rating: 4.4,
+    distance: '2.2 km',
+    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXJrJTIwdHJlZXMlMjBuYXR1cmUlMjBwYXRofGVufDF8fHx8MTc2NDIwNDg2OXww&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 10,
+    name: 'Konya Çarşısı',
+    category: 'Alışveriş',
+    rating: 4.3,
+    distance: '1.0 km',
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzaG9wcGluZyUyMG1hbGwlMjBpbnRlcmlvcnxlbnwxfHx8fDE3NjQyMDQ4NzB8MA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 11,
+    name: 'Tropikal Aqua Park',
+    category: 'Eğlence',
+    rating: 4.5,
+    distance: '5.0 km',
+    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3YXRlcnBhcmslMjBzd2ltbWluZyUyMHBvb2x8ZW58MXx8fHwxNzY0MjA0ODcxfDA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 12,
+    name: 'Konya Spor Salonu',
+    category: 'Spor',
+    rating: 4.6,
+    distance: '2.8 km',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxneW0lMjBzcG9ydCUyMGZhY2lsaXR5fGVufDF8fHx8MTc2NDIwNDg3Mnww&ixlib=rb-4.1.0&q=80&w=1080'
+  }
 ];
 
 const EVENTS = [
@@ -154,6 +158,111 @@ const EVENTS = [
     day: '08',
     month: 'KASIM',
     image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBldmVudCUyMGNvbXBldGl0aW9ufGVufDF8fHx8MTc2NDIwNDg2Mnww&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 7,
+    title: 'Müzik Gecesi',
+    location: 'Kampüs Amfi',
+    day: '12',
+    month: 'KASIM',
+    image: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsaXZlJTIwbXVzaWMlMjBjb25jZXJ0JTIwc3RhZ2V8ZW58MXx8fHwxNzY0MjA0ODczfDA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 8,
+    title: 'Teknoloji Zirvesi',
+    location: 'Teknokent Konferans Salonu',
+    day: '15',
+    month: 'KASIM',
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWNobm9sb2d5JTIwY29uZmVyZW5jZSUyMHRhbGt8ZW58MXx8fHwxNzY0MjA0ODc0fDA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 9,
+    title: 'Yemek Festivali',
+    location: 'Kampüs Meydanı',
+    day: '18',
+    month: 'KASIM',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb29kJTIwZmVzdGl2YWwlMjBzdHJlZXQlMjBmb29kfGVufDF8fHx8MTc2NDIwNDg3NXww&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 10,
+    title: 'Sanat Sergisi',
+    location: 'Güzel Sanatlar Fakültesi',
+    day: '22',
+    month: 'KASIM',
+    image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnQlMjBleGhpYml0aW9uJTIwcGFpbnRpbmdzfGVufDF8fHx8MTc2NDIwNDg3Nnww&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 11,
+    title: 'Kariyer Fuarı',
+    location: 'Spor Salonu',
+    day: '25',
+    month: 'KASIM',
+    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqb2IlMjBmYWlyJTIwY2FyZWVyJTIwZXZlbnR8ZW58MXx8fHwxNzY0MjA0ODc3fDA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 12,
+    title: 'Kampüs Turu',
+    location: 'Ana Giriş',
+    day: '28',
+    month: 'KASIM',
+    image: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwY2FtcHVzJTIwdG91cnxlbnwxfHx8fDE3NjQyMDQ4Nzh8MA&ixlib=rb-4.1.0&q=80&w=1080'
+  }
+];
+
+const SOCIAL_RESPONSIBILITY_PROJECTS = [
+  {
+    id: 1,
+    title: 'Köy Okullarına Kitap Bağışı',
+    location: 'Merkez Kampüs',
+    day: '10',
+    month: 'KASIM',
+    points: 500,
+    image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxib29rJTIwZG9uYXRpb24lMjBjaGFyaXR5fGVufDF8fHx8MTc2NDIwNDg3OXww&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 2,
+    title: 'Çevre Temizlik Günü',
+    location: 'Meram Bağları',
+    day: '14',
+    month: 'KASIM',
+    points: 750,
+    image: 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbnZpcm9ubWVudGFsJTIwY2xlYW51cCUyMHZvbHVudGVlcnxlbnwxfHx8fDE3NjQyMDQ4ODB8MA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 3,
+    title: 'Yaşlı Bakım Evi Ziyareti',
+    location: 'Konya Huzurevi',
+    day: '17',
+    month: 'KASIM',
+    points: 600,
+    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGRlcmx5JTIwY2FyZSUyMHZvbHVudGVlcnxlbnwxfHx8fDE3NjQyMDQ4ODF8MA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 4,
+    title: 'Kan Bağışı Kampanyası',
+    location: 'Kızılay Merkez',
+    day: '20',
+    month: 'KASIM',
+    points: 800,
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxibG9vZCUyMGRvbmF0aW9uJTIwaG9zcGl0YWx8ZW58MXx8fHwxNzY0MjA0ODgyfDA&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 5,
+    title: 'Hayvan Barınağı Gönüllülüğü',
+    location: 'Konya Hayvan Barınağı',
+    day: '23',
+    month: 'KASIM',
+    points: 650,
+    image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbmltYWwlMjBzaGVsdGVyJTIwdm9sdW50ZWVyfGVufDF8fHx8MTc2NDIwNDg4M3ww&ixlib=rb-4.1.0&q=80&w=1080'
+  },
+  {
+    id: 6,
+    title: 'Gıda Bankası Bağışı',
+    location: 'Kampüs Meydanı',
+    day: '26',
+    month: 'KASIM',
+    points: 700,
+    image: 'https://images.unsplash.com/photo-1509099863731-ef4bff19e808?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb29kJTIwYmFuayUyMGRvbmF0aW9ufGVufDF8fHx8MTc2NDIwNDg4NHww&ixlib=rb-4.1.0&q=80&w=1080'
   }
 ];
 
@@ -166,47 +275,19 @@ const TRENDING_TOPICS = [
   { id: 4, title: 'Kütüphane 7/24 Açık Mı?', count: '900 Okunma' },
 ];
 
-const GAME_CARDS = [
-  {
-    id: 1,
-    title: 'Quiz Duel',
-    subtitle: 'Rakibini Bul',
-    icon: Swords,
-    reward: '+20 Coin',
-    bgColor: 'violet-gradient'
-  },
-  {
-    id: 2,
-    title: 'Hazine Avı',
-    subtitle: 'Konya\'yı Keşfet',
-    icon: MapPin,
-    reward: '+100 Coin',
-    bgColor: 'violet-gradient'
-  },
-  {
-    id: 3,
-    title: 'Kampüs Muhabiri',
-    subtitle: 'Durum Raporu',
-    icon: Camera,
-    reward: '+15 Coin',
-    bgColor: 'violet-gradient',
-    isLive: true
-  },
-  {
-    id: 4,
-    title: 'Günün Anketi',
-    subtitle: 'Oy Ver',
-    icon: BarChart3,
-    reward: '+10 Coin',
-    bgColor: 'violet-gradient'
-  }
-];
 
 interface DiscoverScreenProps {
   activeTab?: string;
   onTabChange?: (tab: string) => void;
   onGameCenterClick?: () => void;
   onAnnouncementClick?: (announcement: any) => void;
+  onAnnouncementsListClick?: () => void;
+  onPlaceClick?: (place: any) => void;
+  onPlacesListClick?: () => void;
+  onEventClick?: (event: any) => void;
+  onEventsListClick?: () => void;
+  onSocialResponsibilityClick?: (project: any) => void;
+  onSocialResponsibilityListClick?: () => void;
   isAuthenticated?: boolean;
   onGameSelect?: (gameId: string) => void;
   onLoginClick?: () => void;
@@ -217,6 +298,13 @@ export const DiscoverScreen = ({
   onTabChange,
   onGameCenterClick,
   onAnnouncementClick,
+  onAnnouncementsListClick,
+  onPlaceClick,
+  onPlacesListClick,
+  onEventClick,
+  onEventsListClick,
+  onSocialResponsibilityClick,
+  onSocialResponsibilityListClick,
   isAuthenticated = false,
   onGameSelect,
   onLoginClick,
@@ -224,51 +312,7 @@ export const DiscoverScreen = ({
   const { isDarkMode } = useTheme();
   const [activeFilter, setActiveFilter] = useState('Tümü');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
-  const [showExamHero, setShowExamHero] = useState(false);
-  const [showTreasureHunt, setShowTreasureHunt] = useState(false);
-  const [showCampusReporter, setShowCampusReporter] = useState(false);
-  const [showDailyPoll, setShowDailyPoll] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  const handleGameCardClick = (gameId: number) => {
-    if (gameId === 1) {
-      // Quiz Duel clicked - show ExamHeroScreen
-      setShowExamHero(true);
-    } else if (gameId === 2) {
-      // Hazine Avı clicked - show TreasureHuntScreen
-      setShowTreasureHunt(true);
-    } else if (gameId === 3) {
-      // Kampüs Muhabiri clicked - show CampusReporterScreen
-      setShowCampusReporter(true);
-    } else if (gameId === 4) {
-      // Günün Anketi clicked - show DailyPollScreen
-      setShowDailyPoll(true);
-    }
-  };
-
-  if (showExamHero) {
-    // Dynamically import and render ExamHeroScreen
-    const { ExamHeroScreen } = require('./ExamHeroScreen');
-    return <ExamHeroScreen />;
-  }
-
-  if (showTreasureHunt) {
-    // Dynamically import and render TreasureHuntScreen
-    const { TreasureHuntScreen } = require('./TreasureHuntScreen');
-    return <TreasureHuntScreen />;
-  }
-
-  if (showCampusReporter) {
-    // Dynamically import and render CampusReporterScreen
-    const { CampusReporterScreen } = require('./CampusReporterScreen');
-    return <CampusReporterScreen />;
-  }
-
-  if (showDailyPoll) {
-    // Dynamically import and render DailyPollScreen
-    const { DailyPollScreen } = require('./DailyPollScreen');
-    return <DailyPollScreen />;
-  }
 
   return (
     <div className={`min-h-screen pb-32 lg:pb-6 transition-colors ${
@@ -298,12 +342,18 @@ export const DiscoverScreen = ({
             onGameClick={(gameId) => onGameSelect?.(gameId)}
             onGameCenterClick={onGameCenterClick}
           >
-            <div className="space-y-4">
+            <div className="space-y-6">
 
         {/* Section 1: Duyurular (Announcements) */}
         <SectionWrapper
           title="Duyurular"
-          onViewAll={() => console.log('Show all announcements')}
+          onViewAll={() => {
+            if (!isAuthenticated) {
+              onLoginClick?.();
+            } else {
+              onAnnouncementsListClick?.();
+            }
+          }}
         >
             {ANNOUNCEMENTS.map((announcement) => (
               <AnnouncementCard 
@@ -316,8 +366,8 @@ export const DiscoverScreen = ({
 
         {/* Section 2: Popüler Mekanlar (Horizontal Cards - 16:9) */}
         <section>
-          <div className={`mb-4 flex items-center justify-between ${isAuthenticated ? 'px-0' : 'px-5 lg:px-0'}`}>
-            <h3 className={`text-2xl font-bold transition-colors ${
+          <div className="mb-5 flex items-center justify-between px-5 lg:px-0">
+            <h3 className={`text-2xl lg:text-[28px] font-bold transition-colors ${
               isDarkMode ? 'text-white' : 'text-[#19142e]'
             }`}>Popüler Mekanlar</h3>
             <button 
@@ -325,7 +375,7 @@ export const DiscoverScreen = ({
                 if (!isAuthenticated) {
                   onLoginClick?.();
                 } else {
-                  console.log('Show all places');
+                  onPlacesListClick?.();
                 }
               }}
               className={`text-sm font-bold transition-colors ${
@@ -338,7 +388,7 @@ export const DiscoverScreen = ({
             </button>
           </div>
           
-          <div className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none ${isAuthenticated ? 'px-0' : 'px-4 lg:px-0'}`}>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none px-5 lg:px-0">
             {POPULAR_PLACES.map((place) => (
               <div 
                 key={place.id} 
@@ -347,7 +397,7 @@ export const DiscoverScreen = ({
                   if (!isAuthenticated) {
                     onLoginClick?.();
                   } else {
-                    console.log('🏛️ Place clicked:', place.name);
+                    onPlaceClick?.(place);
                   }
                 }}
               >
@@ -384,95 +434,10 @@ export const DiscoverScreen = ({
           </div>
         </section>
 
-        {/* Section 2: GençCoin Kazan - Game Cards */}
-        <section>
-          <div className={`mb-4 flex items-center justify-between ${isAuthenticated ? 'px-0' : 'px-5 lg:px-0'}`}>
-            <h3 className={`text-2xl font-bold transition-colors ${
-              isDarkMode ? 'text-white' : 'text-[#19142e]'
-            }`}>GençCoin Kazan</h3>
-          </div>
-          
-          <div className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory ${isAuthenticated ? 'px-0' : 'px-4'}`}>
-            {GAME_CARDS.map((card) => {
-              const IconComponent = card.icon;
-              return (
-                <div 
-                  key={card.id} 
-                  className="snap-center flex-shrink-0 w-[200px] group cursor-pointer"
-                  onClick={() => {
-                    if (!isAuthenticated) {
-                      onLoginClick?.();
-                    } else {
-                      handleGameCardClick(card.id);
-                    }
-                  }}
-                >
-                  <div className={`relative w-full aspect-square rounded-xl shadow-[0_8px_24px_rgba(25,20,46,0.12)] hover:shadow-[0_12px_32px_rgba(25,20,46,0.16)] transition-all overflow-hidden ${
-                    card.bgColor === 'violet-gradient' 
-                      ? 'violet-gradient' 
-                      : isDarkMode 
-                        ? 'bg-[#1a1a2e]' 
-                        : card.bgColor
-                  }`}>
-                    {/* Live Badge for Kampüs Muhabiri */}
-                    {card.isLive && (
-                      <div className="absolute top-3 right-3 z-10">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500 shadow-lg">
-                          <motion.div
-                            animate={{ opacity: [1, 0.3, 1] }}
-                            transition={{ repeat: Infinity, duration: 1.5 }}
-                            className="w-2 h-2 rounded-full bg-white"
-                          />
-                          <span className="text-xs font-black text-white">CANLI</span>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="p-5 h-full flex flex-col justify-between">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className={`p-3 ${card.bgColor === 'violet-gradient' ? 'bg-white/20' : isDarkMode ? 'bg-slate-800' : 'bg-[#5852c4]'} rounded-xl shadow-sm`}>
-                          <IconComponent className="w-6 h-6 text-white" strokeWidth={2.5} />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className={`font-extrabold mb-1 ${
-                          card.bgColor === 'violet-gradient' 
-                            ? 'text-white' 
-                            : isDarkMode 
-                              ? 'text-white' 
-                              : 'text-[#19142e]'
-                        }`}>{card.title}</h4>
-                        <p className={`text-sm mb-3 ${
-                          card.bgColor === 'violet-gradient' 
-                            ? 'text-white/80' 
-                            : isDarkMode 
-                              ? 'text-slate-400' 
-                              : 'text-[#8279a5]'
-                        }`}>{card.subtitle}</p>
-                        <div className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full ${
-                          card.bgColor === 'violet-gradient' 
-                            ? 'bg-white/20' 
-                            : isDarkMode 
-                              ? 'bg-[#5852c4]/30' 
-                              : 'bg-[#5852c4]'
-                        }`}>
-                          <Coins className="w-3 h-3 text-white" />
-                          <span className="text-xs font-extrabold text-white">{card.reward}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
         {/* Section 3: Yaklaşan Etkinlikler */}
         <section>
-          <div className={`mb-4 flex items-center justify-between ${isAuthenticated ? 'px-0' : 'px-5'}`}>
-            <h3 className={`text-2xl font-bold transition-colors ${
+          <div className="mb-5 flex items-center justify-between px-5 lg:px-0">
+            <h3 className={`text-2xl lg:text-[28px] font-bold transition-colors ${
               isDarkMode ? 'text-white' : 'text-[#19142e]'
             }`}>Yaklaşan Etkinlikler</h3>
             <button 
@@ -480,7 +445,7 @@ export const DiscoverScreen = ({
                 if (!isAuthenticated) {
                   onLoginClick?.();
                 } else {
-                  console.log('Show all events');
+                  onEventsListClick?.();
                 }
               }}
               className={`text-sm font-bold transition-colors ${
@@ -493,20 +458,20 @@ export const DiscoverScreen = ({
             </button>
           </div>
           
-          <div className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory ${isAuthenticated ? 'px-0' : 'px-4'}`}>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none px-5 lg:px-0">
             {EVENTS.map((event) => (
               <div 
                 key={event.id} 
-                className="snap-center flex-shrink-0 w-[280px] group cursor-pointer"
+                className="snap-center flex-shrink-0 w-[320px] lg:w-[450px] group cursor-pointer"
                 onClick={() => {
                   if (!isAuthenticated) {
                     onLoginClick?.();
                   } else {
-                    console.log('Event clicked:', event.title);
+                    onEventClick?.(event);
                   }
                 }}
               >
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(25,20,46,0.12)]">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(25,20,46,0.12)] hover:shadow-[0_12px_40px_rgba(25,20,46,0.16)] transition-shadow">
                   <ImageWithFallback 
                     src={event.image}
                     alt={event.title}
@@ -517,9 +482,11 @@ export const DiscoverScreen = ({
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                   
                   {/* Date Badge */}
-                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur rounded-xl p-3 text-center min-w-[60px] shadow-md">
-                    <div className="text-xs font-bold text-[#8279a5] uppercase leading-none mb-1">{event.month}</div>
-                    <div className="text-2xl font-black text-[#19142e] leading-none">{event.day}</div>
+                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+                    <div className="flex items-center gap-1.5">
+                      <div className="text-sm font-black text-[#5852c4] leading-none">{event.day}</div>
+                      <div className="text-xs font-bold text-[#19142e] uppercase leading-none">{event.month}</div>
+                    </div>
                   </div>
                   
                   {/* Content - Bottom Overlay */}
@@ -536,6 +503,81 @@ export const DiscoverScreen = ({
           </div>
         </section>
 
+        {/* Section 4: Sosyal Sorumluluk */}
+        <section>
+          <div className="mb-5 flex items-center justify-between px-5 lg:px-0">
+            <h3 className={`text-2xl lg:text-[28px] font-bold transition-colors ${
+              isDarkMode ? 'text-white' : 'text-[#19142e]'
+            }`}>Sosyal Sorumluluk</h3>
+            <button 
+              onClick={() => {
+                if (!isAuthenticated) {
+                  onLoginClick?.();
+                } else {
+                  onSocialResponsibilityListClick?.();
+                }
+              }}
+              className={`text-sm font-bold transition-colors ${
+                isDarkMode 
+                  ? 'text-[#5852c4] hover:text-white' 
+                  : 'text-[#5852c4] hover:text-[#19142e]'
+              }`}
+            >
+              Tümü
+            </button>
+          </div>
+          
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none px-5 lg:px-0">
+            {SOCIAL_RESPONSIBILITY_PROJECTS.map((project) => (
+              <div 
+                key={project.id} 
+                className="snap-center flex-shrink-0 w-[280px] group cursor-pointer"
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    onLoginClick?.();
+                  } else {
+                    onSocialResponsibilityClick?.(project);
+                  }
+                }}
+              >
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(25,20,46,0.12)] hover:shadow-[0_12px_40px_rgba(25,20,46,0.16)] transition-shadow">
+                  <ImageWithFallback 
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  
+                  {/* Dark Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  
+                  {/* Date Badge */}
+                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+                    <div className="flex items-center gap-1.5">
+                      <div className="text-sm font-black text-[#5852c4] leading-none">{project.day}</div>
+                      <div className="text-xs font-bold text-[#19142e] uppercase leading-none">{project.month}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Points Badge - Top Right (Different color for social responsibility) */}
+                  <div className="absolute top-3 right-3 bg-gradient-to-r from-emerald-500 to-teal-600 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-1 shadow-md">
+                    <Coins className="w-3 h-3 text-white" />
+                    <span className="text-sm font-bold text-white">{project.points}</span>
+                  </div>
+                  
+                  {/* Content - Bottom Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+                    <h4 className="font-bold text-white mb-2 leading-tight">{project.title}</h4>
+                    <div className="flex items-center gap-1.5 text-white/90 text-sm">
+                      <MapPin className="w-4 h-4" />
+                      <span>{project.location}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
             </div>
           </PageLayout>
         ) : (
@@ -544,7 +586,7 @@ export const DiscoverScreen = ({
             
         {/* Section 1: Duyurular (Announcements) - NEW! */}
         <section>
-          <div className={`mb-4 flex items-center justify-between ${isAuthenticated ? 'px-0' : 'px-5 lg:px-0'}`}>
+          <div className="mb-4 flex items-center justify-between px-5 lg:px-0">
             <h3 className={`text-2xl font-bold transition-colors ${
               isDarkMode ? 'text-white' : 'text-[#19142e]'
             }`}>Duyurular</h3>
@@ -567,7 +609,7 @@ export const DiscoverScreen = ({
           </div>
           
           {/* Horizontal Scroll Carousel */}
-          <div className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none ${isAuthenticated ? 'px-0' : 'px-4 lg:px-0'}`}>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none px-5 lg:px-0">
             {ANNOUNCEMENTS.map((announcement) => (
               <div 
                 key={announcement.id}
@@ -578,7 +620,7 @@ export const DiscoverScreen = ({
                     onAnnouncementClick?.(announcement);
                   }
                 }}
-                className="snap-center flex-shrink-0 w-[320px] lg:w-[380px] group cursor-pointer"
+                className="snap-center flex-shrink-0 w-[320px] lg:w-[450px] group cursor-pointer"
               >
                 <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(25,20,46,0.12)] hover:shadow-[0_12px_40px_rgba(25,20,46,0.16)] transition-shadow">
                   <ImageWithFallback 
@@ -590,10 +632,10 @@ export const DiscoverScreen = ({
                   {/* Dark Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                   
-                  {/* Category Badge - Top Right */}
+                  {/* Category Badge - Top Left */}
                   {announcement.category && (
-                    <div className="absolute top-3 right-3 z-10">
-                      <span className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-bold border border-white/30">
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm text-[#19142e] text-xs font-bold shadow-md">
                         {announcement.category}
                       </span>
                     </div>
@@ -612,7 +654,7 @@ export const DiscoverScreen = ({
 
         {/* Section 2: Popüler Mekanlar (Horizontal Cards - 16:9) */}
         <section>
-          <div className={`mb-4 flex items-center justify-between ${isAuthenticated ? 'px-0' : 'px-5 lg:px-0'}`}>
+          <div className="mb-4 flex items-center justify-between px-5 lg:px-0">
             <h3 className={`text-2xl font-bold transition-colors ${
               isDarkMode ? 'text-white' : 'text-[#19142e]'
             }`}>Popüler Mekanlar</h3>
@@ -621,7 +663,7 @@ export const DiscoverScreen = ({
                 if (!isAuthenticated) {
                   onLoginClick?.();
                 } else {
-                  console.log('Show all places');
+                  onPlacesListClick?.();
                 }
               }}
               className={`text-sm font-bold transition-colors ${
@@ -634,7 +676,7 @@ export const DiscoverScreen = ({
             </button>
           </div>
           
-          <div className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none ${isAuthenticated ? 'px-0' : 'px-4 lg:px-0'}`}>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none px-5 lg:px-0">
             {POPULAR_PLACES.map((place) => (
               <div 
                 key={place.id} 
@@ -643,7 +685,7 @@ export const DiscoverScreen = ({
                   if (!isAuthenticated) {
                     onLoginClick?.();
                   } else {
-                    console.log('🏛️ Place clicked:', place.name);
+                    onPlaceClick?.(place);
                   }
                 }}
               >
@@ -680,105 +722,9 @@ export const DiscoverScreen = ({
           </div>
         </section>
 
-        {/* Section 3: GençCoin Kazan - Game Cards */}
+        {/* Section 3: Yaklaşan Etkinlikler */}
         <section>
-          <div className={`mb-4 flex items-center justify-between ${isAuthenticated ? 'px-0' : 'px-5 lg:px-0'}`}>
-            <h3 className={`text-2xl font-bold transition-colors ${
-              isDarkMode ? 'text-white' : 'text-[#19142e]'
-            }`}>GençCoin Kazan</h3>
-          </div>
-          
-          <div className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory ${isAuthenticated ? 'px-0' : 'px-4'}`}>
-            {GAME_CARDS.map((card) => {
-              const IconComponent = card.icon;
-              return (
-                <div 
-                  key={card.id} 
-                  className="snap-center flex-shrink-0 w-[200px] group cursor-pointer"
-                  onClick={() => {
-                    if (!isAuthenticated) {
-                      onLoginClick?.();
-                    } else {
-                      handleGameCardClick(card.id);
-                    }
-                  }}
-                >
-                  <div className={`relative w-full aspect-square rounded-xl shadow-[0_8px_24px_rgba(25,20,46,0.12)] hover:shadow-[0_12px_32px_rgba(25,20,46,0.16)] transition-all overflow-hidden ${
-                    card.bgColor === 'violet-gradient' 
-                      ? 'violet-gradient' 
-                      : isDarkMode 
-                        ? 'bg-[#1a1a2e]' 
-                        : card.bgColor
-                  }`}>
-                    {/* Live Badge for Kampüs Muhabiri */}
-                    {card.isLive && (
-                      <div className="absolute top-3 right-3 z-10">
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500 shadow-lg">
-                          <motion.div
-                            animate={{ opacity: [1, 0.3, 1] }}
-                            transition={{ repeat: Infinity, duration: 1.5 }}
-                            className="w-2 h-2 rounded-full bg-white"
-                          />
-                          <span className="text-xs font-black text-white">CANLI</span>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="p-5 h-full flex flex-col justify-between">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className={`p-3 ${card.bgColor === 'violet-gradient' ? 'bg-white/20' : isDarkMode ? 'bg-slate-800' : 'bg-[#5852c4]'} rounded-xl shadow-sm`}>
-                          <IconComponent className="w-6 h-6 text-white" strokeWidth={2.5} />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className={`font-extrabold mb-1 ${
-                          card.bgColor === 'violet-gradient' 
-                            ? 'text-white' 
-                            : isDarkMode 
-                              ? 'text-white' 
-                              : 'text-[#19142e]'
-                        }`}>{card.title}</h4>
-                        <p className={`text-sm mb-3 ${
-                          card.bgColor === 'violet-gradient' 
-                            ? 'text-white/80' 
-                            : isDarkMode 
-                              ? 'text-slate-400' 
-                              : 'text-[#8279a5]'
-                        }`}>{card.description}</p>
-                        
-                        <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg ${
-                          card.bgColor === 'violet-gradient' 
-                            ? 'bg-white/20' 
-                            : isDarkMode 
-                              ? 'bg-slate-800' 
-                              : 'bg-[#5852c4]/10'
-                        }`}>
-                          <Coins className={`w-4 h-4 ${
-                            card.bgColor === 'violet-gradient' 
-                              ? 'text-white' 
-                              : 'text-[#F59E0B]'
-                          }`} strokeWidth={2.5} />
-                          <span className={`text-xs font-black ${
-                            card.bgColor === 'violet-gradient' 
-                              ? 'text-white' 
-                              : isDarkMode 
-                                ? 'text-white' 
-                                : 'text-[#5852c4]'
-                          }`}>{card.reward}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Section 4: Yaklaşan Etkinlikler */}
-        <section>
-          <div className={`mb-4 flex items-center justify-between ${isAuthenticated ? 'px-0' : 'px-5'}`}>
+          <div className="mb-4 flex items-center justify-between px-5 lg:px-0">
             <h3 className={`text-2xl font-bold transition-colors ${
               isDarkMode ? 'text-white' : 'text-[#19142e]'
             }`}>Yaklaşan Etkinlikler</h3>
@@ -787,7 +733,7 @@ export const DiscoverScreen = ({
                 if (!isAuthenticated) {
                   onLoginClick?.();
                 } else {
-                  console.log('Show all events');
+                  onEventsListClick?.();
                 }
               }}
               className={`text-sm font-bold transition-colors ${
@@ -800,20 +746,20 @@ export const DiscoverScreen = ({
             </button>
           </div>
           
-          <div className={`flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory ${isAuthenticated ? 'px-0' : 'px-4'}`}>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none px-5 lg:px-0">
             {EVENTS.map((event) => (
               <div 
                 key={event.id} 
-                className="snap-center flex-shrink-0 w-[280px] group cursor-pointer"
+                className="snap-center flex-shrink-0 w-[320px] lg:w-[450px] group cursor-pointer"
                 onClick={() => {
                   if (!isAuthenticated) {
                     onLoginClick?.();
                   } else {
-                    console.log('Event clicked:', event.title);
+                    onEventClick?.(event);
                   }
                 }}
               >
-                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(25,20,46,0.12)]">
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(25,20,46,0.12)] hover:shadow-[0_12px_40px_rgba(25,20,46,0.16)] transition-shadow">
                   <ImageWithFallback 
                     src={event.image}
                     alt={event.title}
@@ -824,9 +770,11 @@ export const DiscoverScreen = ({
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                   
                   {/* Date Badge */}
-                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur rounded-xl p-3 text-center min-w-[60px] shadow-md">
-                    <div className="text-xs font-bold text-[#8279a5] uppercase leading-none mb-1">{event.month}</div>
-                    <div className="text-2xl font-black text-[#19142e] leading-none">{event.day}</div>
+                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+                    <div className="flex items-center gap-1.5">
+                      <div className="text-sm font-black text-[#5852c4] leading-none">{event.day}</div>
+                      <div className="text-xs font-bold text-[#19142e] uppercase leading-none">{event.month}</div>
+                    </div>
                   </div>
                   
                   {/* Content - Bottom Overlay */}
@@ -835,6 +783,81 @@ export const DiscoverScreen = ({
                     <div className="flex items-center gap-1.5 text-white/90 text-sm">
                       <MapPin className="w-4 h-4" />
                       <span>{event.location}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Section 4: Sosyal Sorumluluk */}
+        <section>
+          <div className="mb-4 flex items-center justify-between px-5 lg:px-0">
+            <h3 className={`text-2xl font-bold transition-colors ${
+              isDarkMode ? 'text-white' : 'text-[#19142e]'
+            }`}>Sosyal Sorumluluk</h3>
+            <button 
+              onClick={() => {
+                if (!isAuthenticated) {
+                  onLoginClick?.();
+                } else {
+                  onSocialResponsibilityListClick?.();
+                }
+              }}
+              className={`text-sm font-bold transition-colors ${
+                isDarkMode 
+                  ? 'text-[#5852c4] hover:text-white' 
+                  : 'text-[#5852c4] hover:text-[#19142e]'
+              }`}
+            >
+              Tümü
+            </button>
+          </div>
+          
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory lg:snap-none px-5 lg:px-0">
+            {SOCIAL_RESPONSIBILITY_PROJECTS.map((project) => (
+              <div 
+                key={project.id} 
+                className="snap-center flex-shrink-0 w-[280px] group cursor-pointer"
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    onLoginClick?.();
+                  } else {
+                    onSocialResponsibilityClick?.(project);
+                  }
+                }}
+              >
+                <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(25,20,46,0.12)] hover:shadow-[0_12px_40px_rgba(25,20,46,0.16)] transition-shadow">
+                  <ImageWithFallback 
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  
+                  {/* Dark Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  
+                  {/* Date Badge */}
+                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
+                    <div className="flex items-center gap-1.5">
+                      <div className="text-sm font-black text-[#5852c4] leading-none">{project.day}</div>
+                      <div className="text-xs font-bold text-[#19142e] uppercase leading-none">{project.month}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Points Badge - Top Right (Different color for social responsibility) */}
+                  <div className="absolute top-3 right-3 bg-gradient-to-r from-emerald-500 to-teal-600 backdrop-blur-sm px-3 py-1.5 rounded-full flex items-center gap-1 shadow-md">
+                    <Coins className="w-3 h-3 text-white" />
+                    <span className="text-sm font-bold text-white">{project.points}</span>
+                  </div>
+                  
+                  {/* Content - Bottom Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+                    <h4 className="font-bold text-white mb-2 leading-tight">{project.title}</h4>
+                    <div className="flex items-center gap-1.5 text-white/90 text-sm">
+                      <MapPin className="w-4 h-4" />
+                      <span>{project.location}</span>
                     </div>
                   </div>
                 </div>
