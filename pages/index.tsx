@@ -25,8 +25,9 @@ import { GameCenterScreen } from '../components/screens/GameCenterScreen';
 import { LoginScreen } from '../components/auth/LoginScreen';
 import { MOCK_COMMENTS, convertCommentToPost } from '../data/mockComments';
 import { ThemeProvider } from '../contexts/ThemeContext';
-import { CoinProvider } from '../contexts/CoinContext';
+import { CoinProvider, useCoins } from '../contexts/CoinContext';
 import { SearchOverlay } from '../components/search/SearchOverlay';
+import { WelcomeCoinModal } from '../components/onboarding/WelcomeCoinModal';
 
 interface PostStackItem {
   post: any;
@@ -40,6 +41,7 @@ function AppContent() {
   const [showGameCenter, setShowGameCenter] = useState(false);
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   
   // Navigation stack for infinite post drilling
   const [postStack, setPostStack] = useState<PostStackItem[]>([]);
@@ -95,6 +97,18 @@ function AppContent() {
       console.log('🔄 activeTab changed to:', activeTab);
     }
   }, [activeTab]);
+
+  // Check for welcome animation flag on mount and when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const shouldShowWelcome = localStorage.getItem('showWelcomeAnimation');
+      if (shouldShowWelcome === 'true') {
+        setShowWelcomeModal(true);
+        // Remove flag immediately to prevent showing again
+        localStorage.removeItem('showWelcomeAnimation');
+      }
+    }
+  }, [isAuthenticated]);
 
   // Show login modal if requested
   if (showLoginModal) {
@@ -827,6 +841,11 @@ function AppContent() {
         onClose={() => setIsCreatePostOpen(false)} 
       />
 
+      {/* Welcome Coin Modal */}
+      <WelcomeCoinModal 
+        isOpen={showWelcomeModal}
+        onClose={() => setShowWelcomeModal(false)}
+      />
 
       {/* Global Search Overlay */}
       <SearchOverlay
@@ -847,7 +866,7 @@ function AppContent() {
 export default function Home() {
   return (
     <ThemeProvider>
-      <CoinProvider initialCoins={6240}>
+      <CoinProvider initialCoins={0}>
         <AppContent />
       </CoinProvider>
     </ThemeProvider>

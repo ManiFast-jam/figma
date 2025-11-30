@@ -6,6 +6,7 @@ import { PageLayout } from '../layout/PageLayout';
 import { WalletModal } from '../wallet/WalletModal';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useCoins } from '../../contexts/CoinContext';
+import { CoinActionType } from '../../services/CoinRewardService';
 import { toast } from 'sonner';
 
 interface Category {
@@ -66,7 +67,7 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { addCoins } = useCoins();
+  const { rewardAction, getUserRole, getRoleMultiplier } = useCoins();
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -233,9 +234,10 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
     });
 
     // Add coins for completing the report
-    const coinReward = 75;
-    addCoins(coinReward);
-    toast.success(`+${coinReward} GençCoin kazandınız!`);
+    const result = rewardAction(CoinActionType.GAME_CAMPUS_REPORTER);
+    if (result.success) {
+      toast.success(`+${result.reward} GençCoin kazandınız! (${getUserRole()} - ${getRoleMultiplier()}x çarpan)`);
+    }
 
     setShowSuccess(true);
     setTimeout(() => {
@@ -256,7 +258,6 @@ export const CampusReporterScreen = ({ onBack, activeTab = 'home', onTabChange, 
           <GlobalHeader 
             type="rich"
             onWalletClick={() => setIsWalletModalOpen(true)}
-            coinBalance="2.450"
             onSearchClick={() => console.log('🔍 Search clicked')}
             onFilterClick={() => console.log('🎯 Filter clicked')}
             activeTab={activeTab}

@@ -5,6 +5,7 @@ import { GlobalHeader } from '../layout/GlobalHeader';
 import { RightSidebar } from '../layout/RightSidebar';
 import { WalletModal } from '../wallet/WalletModal';
 import { useCoins } from '../../contexts/CoinContext';
+import { CoinActionType } from '../../services/CoinRewardService';
 import { useTheme } from '../../contexts/ThemeContext';
 import { toast } from 'sonner';
 
@@ -57,7 +58,7 @@ interface ExamHeroScreenProps {
 
 export const ExamHeroScreen = ({ onBack, activeTab = 'home', onTabChange, onGameCenterClick }: ExamHeroScreenProps) => {
   const { isDarkMode } = useTheme();
-  const { addCoins, coins, coinAnimationTrigger } = useCoins();
+  const { rewardAction, coins, coinAnimationTrigger, getUserRole, getRoleMultiplier } = useCoins();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isFormCompleted, setIsFormCompleted] = useState(false);
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
@@ -163,8 +164,10 @@ export const ExamHeroScreen = ({ onBack, activeTab = 'home', onTabChange, onGame
     setPreviousCoins(coins);
     setIsFormCompleted(true);
     setShowCoinAnimation(true);
-    addCoins(150);
-    toast.success('🎉 Notun başarıyla yüklendi! +150 GençCoin kazandın!');
+    const result = rewardAction(CoinActionType.GAME_EXAM_HERO);
+    if (result.success) {
+      toast.success(`🎉 Notun başarıyla yüklendi! +${result.reward} GençCoin kazandın! (${getUserRole()} - ${getRoleMultiplier()}x çarpan)`);
+    }
   };
 
   return (
@@ -176,7 +179,6 @@ export const ExamHeroScreen = ({ onBack, activeTab = 'home', onTabChange, onGame
           <GlobalHeader 
             type="rich"
             onWalletClick={() => setIsWalletModalOpen(true)}
-            coinBalance="2.450"
             onSearchClick={() => console.log('🔍 Search clicked')}
             onFilterClick={() => console.log('🎯 Filter clicked')}
             activeTab={activeTab}

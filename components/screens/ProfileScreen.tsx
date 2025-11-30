@@ -14,6 +14,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { ContributionsScreen } from './ContributionsScreen';
 import { FollowersScreen } from './FollowersScreen';
 import { useCoins } from '../../contexts/CoinContext';
+import { getUserRole as getRoleFromService, getRoleMultiplier } from '../../services/CoinRewardService';
+import { CoinActionType } from '../../services/CoinRewardService';
+import { getBadgeUnlockStatus } from '../../utils/badgeUtils';
 const kasifBadge = '/images/b720c92d392edc4e03737e032c4f64b443d69150.png';
 const seyyahBadge = '/images/00b07162d5b8b006019514145544fe2039cee667.png';
 const gezginBadge = '/images/628becb8ed3dbf1dbd57717ef0eda68173b358fa.png';
@@ -30,13 +33,17 @@ const gonulluBadge = '/images/8b9ae9f76b67c840289eabe2979566e550fd68ba.png';
 const arsivciBadge = '/images/746c7390f47d5fc61f30caf49a560479931bbcdc.png';
 const geziciBadge = '/images/5ba2f6ea349425d2bb29bcc9c5e2bf353f8b1fbb.png';
 
-// Role & Multiplier Calculation
+// Role & Multiplier Calculation (using CoinRewardService)
 const getUserRole = (coins: number) => {
-  if (coins < 500) return { title: "Yeni Gelen", multiplier: "1.0x", nextTitle: "Seyyah", nextLimit: 500, current: coins };
-  if (coins < 2500) return { title: "Seyyah", multiplier: "1.2x", nextTitle: "Gezgin", nextLimit: 2500, current: coins };
-  if (coins < 10000) return { title: "Gezgin", multiplier: "1.5x", nextTitle: "Kaşif Meraklısı", nextLimit: 10000, current: coins };
-  if (coins < 50000) return { title: "Kaşif Meraklısı", multiplier: "2.0x", nextTitle: "Konya Bilgesi", nextLimit: 50000, current: coins };
-  return { title: "Konya Bilgesi", multiplier: "2.5x", nextTitle: null, nextLimit: null, current: coins };
+  const roleTitle = getRoleFromService(coins);
+  const multiplier = getRoleMultiplier(roleTitle);
+  const multiplierStr = `${multiplier.toFixed(1)}x`;
+  
+  if (coins < 500) return { title: "Yeni Gelen", multiplier: multiplierStr, nextTitle: "Seyyah", nextLimit: 500, current: coins };
+  if (coins < 2500) return { title: "Seyyah", multiplier: multiplierStr, nextTitle: "Gezgin", nextLimit: 2500, current: coins };
+  if (coins < 10000) return { title: "Gezgin", multiplier: multiplierStr, nextTitle: "Kaşif Meraklısı", nextLimit: 10000, current: coins };
+  if (coins < 50000) return { title: "Kaşif Meraklısı", multiplier: multiplierStr, nextTitle: "Konya Bilgesi", nextLimit: 50000, current: coins };
+  return { title: "Konya Bilgesi", multiplier: multiplierStr, nextTitle: null, nextLimit: null, current: coins };
 };
 
 interface Badge {
@@ -58,8 +65,8 @@ const ALL_BADGES: Badge[] = [
     glow: 'rgba(107, 114, 128, 0.4)',
     description: 'KonyaGenç\'e hoş geldin! Keşfetmeye başlamak için ilk adımı attın.',
     requirement: 'Uygulamayı ilk kez aç',
-    unlocked: true,
-    unlockedDate: '15 Kasım 2024'
+    unlocked: true, // Always unlocked
+    unlockedDate: undefined // Will be set dynamically
   },
   { 
     id: 2, 
@@ -68,8 +75,8 @@ const ALL_BADGES: Badge[] = [
     glow: 'rgba(156, 163, 175, 0.5)',
     description: 'Yolculuğa başladın! 500 GençCoin topladın ve şehri keşfediyorsun.',
     requirement: '500 GençCoin kazanarak Seyyah rütbesine ulaş',
-    unlocked: true,
-    unlockedDate: '20 Kasım 2024'
+    unlocked: false, // Will be set dynamically based on coins
+    unlockedDate: undefined
   },
   { 
     id: 3, 
@@ -78,8 +85,8 @@ const ALL_BADGES: Badge[] = [
     glow: 'rgba(88, 82, 196, 0.5)',
     description: 'Aktif bir KonyaGenç kullanıcısısın! 2.500 GençCoin ile gezginler arasındasın.',
     requirement: '2.500 GençCoin kazanarak Gezgin rütbesine ulaş',
-    unlocked: true,
-    unlockedDate: '25 Kasım 2024'
+    unlocked: false, // Will be set dynamically based on coins
+    unlockedDate: undefined
   },
   { 
     id: 4, 
@@ -108,7 +115,7 @@ const ALL_BADGES: Badge[] = [
     glow: 'rgba(59, 130, 246, 0.5)',
     description: 'Konya\'nın her yerini biliyorsun! 50.000 GençCoin ile bilgeler arasındasın.',
     requirement: '50.000 GençCoin kazanarak Konya Bilgesi rütbesine ulaş',
-    unlocked: false,
+    unlocked: false, // Will be set dynamically based on coins
     unlockedDate: undefined
   },
   { 
@@ -158,7 +165,7 @@ const ALL_BADGES: Badge[] = [
     glow: 'rgba(20, 184, 166, 0.5)',
     description: 'Becerilerinde ustalaştın! Konya\'nın her köşesini keşfettin ve deneyim kazandın.',
     requirement: '100.000 GençCoin kazanarak Usta rütbesine ulaş',
-    unlocked: false,
+    unlocked: false, // Will be set dynamically based on coins
     unlockedDate: undefined
   },
   { 
@@ -168,7 +175,7 @@ const ALL_BADGES: Badge[] = [
     glow: 'rgba(71, 85, 105, 0.6)',
     description: 'Efsaneler arasına katıldın! KonyaGenç\'in en deneyimli kullanıcılarındansın.',
     requirement: '500.000 GençCoin kazanarak Efsane rütbesine ulaş',
-    unlocked: false,
+    unlocked: false, // Will be set dynamically based on coins
     unlockedDate: undefined
   },
   { 
@@ -237,7 +244,7 @@ export const ProfileScreen = ({
   onBack,
 }: ProfileScreenProps = {}) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
-  const { coins: contextCoins } = useCoins();
+  const { coins: contextCoins, rewardAction } = useCoins();
   const isViewingOtherUser = !!userId && !!userData;
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -329,10 +336,18 @@ export const ProfileScreen = ({
     ? (roleData.current / roleData.nextLimit) * 100 
     : 100;
 
-  // Unlocked badges (demo data - based on user achievements)
-  const unlockedBadgeIds = [1, 2, 3]; // Yeni Gelen, Seyyah, Gezgin unlocked
-  const unlockedBadges = ALL_BADGES.filter(b => b.unlocked);
-  const lockedBadges = ALL_BADGES.filter(b => !b.unlocked);
+  // Calculate unlocked badges based on coins
+  const badgesWithStatus = ALL_BADGES.map(badge => {
+    const status = getBadgeUnlockStatus(badge.id, userCoins);
+    return {
+      ...badge,
+      unlocked: status.unlocked,
+      unlockedDate: status.unlockedDate || badge.unlockedDate
+    };
+  });
+
+  const unlockedBadges = badgesWithStatus.filter(b => b.unlocked);
+  const lockedBadges = badgesWithStatus.filter(b => !b.unlocked);
 
   // Role descriptions
   const roleDescriptions: Record<string, string> = {
@@ -417,7 +432,14 @@ export const ProfileScreen = ({
     
     setReferralUrl(generatedUrl);
     setIsGeneratingLink(false);
-    toast.success('Link oluşturuldu!');
+    
+    // Add 100 coins for generating referral link
+    const result = rewardAction(CoinActionType.REFERRAL_LINK_GENERATE);
+    if (result.success) {
+      toast.success(`Link oluşturuldu! +${result.reward} GençCoin kazandınız!`);
+    } else {
+      toast.success('Link oluşturuldu!');
+    }
   };
 
   // Copy Link Handler
@@ -474,7 +496,6 @@ export const ProfileScreen = ({
       <GlobalHeader 
         type="rich"
         onWalletClick={undefined} // Disable wallet click on profile page
-        coinBalance="2.450"
         onSearchClick={() => console.log('🔍 Search clicked')}
         onFilterClick={() => console.log('🎯 Filter clicked')}
         activeTab={activeTab}
@@ -1056,7 +1077,7 @@ export const ProfileScreen = ({
 
           {/* Horizontal Badge Row */}
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-            {ALL_BADGES.slice(0, 7).map((badge) => {
+            {badgesWithStatus.slice(0, 7).map((badge) => {
               const isUnlocked = badge.unlocked;
               return (
                 <button
@@ -1363,6 +1384,7 @@ export const ProfileScreen = ({
         isOpen={isWalletModalOpen}
         onClose={() => setIsWalletModalOpen(false)}
         isCardConnected={true}
+        userFullName={formData.fullName}
       />
 
       {/* Badge Detail Modal */}
@@ -1499,7 +1521,7 @@ export const ProfileScreen = ({
               <div className="bg-gradient-to-br from-[#5852c4] to-[#8B5CF6] px-6 py-6 text-center">
                 <h2 className="text-2xl font-black text-white">Tüm Rozetler</h2>
                 <p className="text-sm text-white/80 font-semibold mt-1">
-                  {unlockedBadges.length} / {ALL_BADGES.length} rozet kazanıldı
+                  {unlockedBadges.length} / {badgesWithStatus.length} rozet kazanıldı
                 </p>
               </div>
 

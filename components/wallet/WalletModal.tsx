@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { X, QrCode, CreditCard, ArrowLeftRight, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useCoins } from '../../contexts/CoinContext';
 
 interface WalletModalProps {
   isOpen: boolean;
   onClose: () => void;
   isCardConnected?: boolean;
+  userFullName?: string;
 }
 
-export const WalletModal = ({ isOpen, onClose, isCardConnected = true }: WalletModalProps) => {
+export const WalletModal = ({ isOpen, onClose, isCardConnected = true, userFullName = 'Fatih Yılmaz' }: WalletModalProps) => {
   const [isTransferring, setIsTransferring] = useState(false);
+  const { coins: userCoins } = useCoins();
 
   // Mock API call for transferring coins to card
   const handleTransferToCard = async () => {
-    const userCoins = 2450; // From card balance
     const minTransfer = 100;
 
     // Validation
@@ -86,7 +88,7 @@ export const WalletModal = ({ isOpen, onClose, isCardConnected = true }: WalletM
               </div>
 
               {isCardConnected ? (
-                <ConnectedCard />
+                <ConnectedCard userCoins={userCoins} userFullName={userFullName} />
               ) : (
                 <DisconnectedCard />
               )}
@@ -122,7 +124,12 @@ export const WalletModal = ({ isOpen, onClose, isCardConnected = true }: WalletM
   );
 };
 
-const ConnectedCard = () => {
+interface ConnectedCardProps {
+  userCoins: number;
+  userFullName: string;
+}
+
+const ConnectedCard = ({ userCoins, userFullName }: ConnectedCardProps) => {
   return (
     <div className="relative w-full aspect-[1.586/1] rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(25,20,46,0.25)]">
       
@@ -175,7 +182,7 @@ const ConnectedCard = () => {
         <div className="mt-auto mb-4">
           <div className="text-sm font-medium text-white/70 mb-1">Toplam Bakiye</div>
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black tracking-tight">2.450</span>
+            <span className="text-4xl font-black tracking-tight">{userCoins.toLocaleString()}</span>
             <span className="text-lg font-bold text-white/90">GençCoin</span>
           </div>
         </div>
@@ -183,7 +190,7 @@ const ConnectedCard = () => {
         {/* Bottom: User Info & Card Details */}
         <div className="flex items-end justify-between border-t border-white/15 pt-3">
           <div>
-            <div className="text-xs font-bold tracking-wide">Fatih Yılmaz</div>
+            <div className="text-xs font-bold tracking-wide">{userFullName}</div>
             <div className="text-[10px] text-white/60 mt-1 font-mono tracking-wider">**** **** **** 1453</div>
           </div>
           

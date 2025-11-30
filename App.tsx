@@ -429,7 +429,7 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <CoinProvider initialCoins={6240}>
+      <CoinProvider initialCoins={0}>
         <AppContent />
       </CoinProvider>
     </ThemeProvider>

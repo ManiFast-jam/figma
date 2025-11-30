@@ -6,7 +6,10 @@ import { PageLayout } from '../layout/PageLayout';
 import { WalletModal } from '../wallet/WalletModal';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { useCoins } from '../../contexts/CoinContext';
+import { CoinActionType } from '../../services/CoinRewardService';
 import { toast } from 'sonner';
+import { BadgeSuccessModal } from '../onboarding/BadgeSuccessModal';
+import { getBadgeIdForRole, getBadgeNameForRole } from '../../utils/badgeUtils';
 
 interface MissionData {
   id: number;
@@ -83,8 +86,12 @@ export const TreasureHuntScreen = ({ onBack, activeTab = 'home', onTabChange, on
   const [showSuccess, setShowSuccess] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [earnedCoinReward, setEarnedCoinReward] = useState(0);
+  const [earnedBadgeName, setEarnedBadgeName] = useState('Öncü');
+  const [earnedBadgeImage, setEarnedBadgeImage] = useState('/images/d47de86a59fb1df6ddab2251f2d0083c430221d0.png');
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { addCoins } = useCoins();
+  const { rewardAction, getUserRole, getRoleMultiplier } = useCoins();
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -195,16 +202,47 @@ export const TreasureHuntScreen = ({ onBack, activeTab = 'home', onTabChange, on
   };
 
   const handleCheckIn = () => {
-    // Add coins for completing the treasure hunt mission
-    const coinReward = CURRENT_MISSION.reward;
-    addCoins(coinReward);
-    toast.success(`+${coinReward} GençCoin kazandınız!`);
-    
+    // Show loading state
     setShowSuccess(true);
-    // Hide success after 3 seconds
+    
+    // Simulate processing delay (1.5s)
     setTimeout(() => {
-      setShowSuccess(false);
-    }, 3000);
+      // Add coins for completing the treasure hunt mission
+      const result = rewardAction(CoinActionType.GAME_TREASURE_HUNT);
+      
+      if (result.success) {
+        setEarnedCoinReward(result.reward);
+        
+        // Get current role after coin addition
+        const currentRole = getUserRole();
+        const badgeId = getBadgeIdForRole(currentRole);
+        const badgeName = getBadgeNameForRole(currentRole);
+        
+        // Get badge image based on role
+        const badgeImages: Record<string, string> = {
+          'Yeni Gelen': '/images/0b861b805523faa4af6e4a425b93c74c77b7e047.png',
+          'Seyyah': '/images/00b07162d5b8b006019514145544fe2039cee667.png',
+          'Gezgin': '/images/628becb8ed3dbf1dbd57717ef0eda68173b358fa.png',
+          'Kaşif Meraklısı': '/images/b720c92d392edc4e03737e032c4f64b443d69150.png',
+          'Konya Bilgesi': '/images/dbaf5bf559d0798ca2d47548efbfd6637cc9d70c.png',
+          'Usta': '/images/5b0cb869d1730a25db9c7579b17ced33967521ed.png',
+          'Efsane': '/images/be58c457f713b2de619a2047b5e217ed3e53a461.png',
+        };
+        
+        const badgeImage = badgeImages[currentRole] || '/images/d47de86a59fb1df6ddab2251f2d0083c430221d0.png';
+        
+        // Store badge info for modal
+        setEarnedBadgeName(badgeName);
+        setEarnedBadgeImage(badgeImage);
+        
+        // Close success message and show badge modal
+        setShowSuccess(false);
+        setShowBadgeModal(true);
+      } else {
+        toast.error('Bir hata oluştu. Lütfen tekrar deneyin.');
+        setShowSuccess(false);
+      }
+    }, 1500);
   };
 
   const handleNavigation = () => {
@@ -229,7 +267,6 @@ export const TreasureHuntScreen = ({ onBack, activeTab = 'home', onTabChange, on
             <GlobalHeader 
               type="rich"
               onWalletClick={() => setIsWalletModalOpen(true)}
-              coinBalance="2.450"
               activeTab={activeTab}
               onTabChange={onTabChange}
               onGameCenterClick={onGameCenterClick}
@@ -459,6 +496,16 @@ export const TreasureHuntScreen = ({ onBack, activeTab = 'home', onTabChange, on
           isOpen={isWalletModalOpen}
           onClose={() => setIsWalletModalOpen(false)}
         />
+
+        {/* Badge Success Modal */}
+        <BadgeSuccessModal
+          isOpen={showBadgeModal}
+          onClose={() => setShowBadgeModal(false)}
+          badgeName={earnedBadgeName}
+          badgeImage={earnedBadgeImage}
+          coinReward={earnedCoinReward}
+          roleName={getUserRole()}
+        />
       </>
     );
   }
@@ -471,7 +518,6 @@ export const TreasureHuntScreen = ({ onBack, activeTab = 'home', onTabChange, on
           <GlobalHeader 
             type="rich"
             onWalletClick={() => setIsWalletModalOpen(true)}
-            coinBalance="2.450"
             activeTab={activeTab}
             onTabChange={onTabChange}
             onGameCenterClick={onGameCenterClick}
@@ -691,6 +737,16 @@ export const TreasureHuntScreen = ({ onBack, activeTab = 'home', onTabChange, on
       <WalletModal 
         isOpen={isWalletModalOpen}
         onClose={() => setIsWalletModalOpen(false)}
+      />
+
+      {/* Badge Success Modal */}
+      <BadgeSuccessModal
+        isOpen={showBadgeModal}
+        onClose={() => setShowBadgeModal(false)}
+        badgeName={earnedBadgeName}
+        badgeImage={earnedBadgeImage}
+        coinReward={earnedCoinReward}
+        roleName={getUserRole()}
       />
     </>
   );

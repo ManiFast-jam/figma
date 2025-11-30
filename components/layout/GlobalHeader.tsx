@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Coins, Search, ArrowLeft, Home, Compass, Bell, User, Gamepad2, SlidersHorizontal, X } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useCoins } from '../../contexts/CoinContext';
 
 interface GlobalHeaderProps {
   type?: 'rich' | 'lite';
@@ -33,7 +34,7 @@ const CATEGORIES = [
 export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
   type = 'lite',
   onWalletClick,
-  coinBalance = '2.450',
+  coinBalance,
   onSearch,
   onSearchClick,
   onBackClick,
@@ -47,8 +48,12 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
   onSearchClear,
 }) => {
   const { isDarkMode } = useTheme();
+  const { coins: contextCoins } = useCoins();
   const [activeCategory, setActiveCategory] = useState('all');
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery || '');
+  
+  // Always use context coins for real-time updates, fallback to prop or default
+  const displayCoins = contextCoins ? contextCoins.toLocaleString('tr-TR') : (coinBalance || '2.450');
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -215,12 +220,12 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
                    className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-[#5852c4] rounded-full hover:bg-[#19142e] transition-all active:scale-95 shadow-md"
                  >
                    <Coins className="w-4 h-4 text-white" strokeWidth={2.5} />
-                   <span className="font-extrabold text-white text-sm">{coinBalance}</span>
+                   <span className="font-extrabold text-white text-sm">{displayCoins}</span>
                  </button>
                ) : (
                  <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-[#5852c4] rounded-full shadow-md">
                    <Coins className="w-4 h-4 text-white" strokeWidth={2.5} />
-                   <span className="font-extrabold text-white text-sm">{coinBalance}</span>
+                   <span className="font-extrabold text-white text-sm">{displayCoins}</span>
                  </div>
                )
              ) : (

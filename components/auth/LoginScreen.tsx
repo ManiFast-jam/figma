@@ -181,6 +181,18 @@ export const LoginScreen = ({ onLogin }: LoginScreenProps) => {
                       }
                     } else {
                       // Register - just check .edu
+                      // Create user object in localStorage
+                      const userData = {
+                        email,
+                        name: email.split('@')[0], // Use email prefix as name
+                        registeredAt: new Date().toISOString(),
+                      };
+                      localStorage.setItem('user', JSON.stringify(userData));
+                      
+                      // CRITICAL: Set flag to show welcome animation
+                      localStorage.setItem('showWelcomeAnimation', 'true');
+                      
+                      // Redirect to dashboard
                       onLogin();
                     }
                   }}

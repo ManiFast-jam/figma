@@ -262,7 +262,6 @@ export const ContributionsScreen = ({
       <GlobalHeader 
         type="rich"
         onWalletClick={onWalletOpen}
-        coinBalance="2.450"
         onSearchClick={() => console.log('🔍 Search clicked')}
         onFilterClick={() => console.log('🎯 Filter clicked')}
         activeTab={activeTab}
